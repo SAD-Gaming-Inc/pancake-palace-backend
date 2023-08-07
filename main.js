@@ -221,3 +221,13 @@ onUpdate(() => {
         player.flipX = false
     }
 })
+
+onCollide("bullet", "enemy", (b, e) => {
+    destroy(b)
+    e.hurt(1)
+})
+on("death", "enemy", (e) => {
+    destroy(e)
+    shake(2)
+    addKaboom(e.pos)
+})
