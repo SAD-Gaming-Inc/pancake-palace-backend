@@ -48,3 +48,33 @@ const map = addLevel([
     }
 
 })
+
+loadSprite("idle-sprite", "Assets/Mage/mage.png")
+// loadSprite("eat-sprite", "Assets/Mage/mage idle.png", {
+//     sliceX: 14, sliceY: 1,
+//     anims: {"eat-anim": {from: 0, to: 13, loop:true}}
+// });
+loadSprite("run-sprite", "Assets/Mage/mage walk.png",{
+    sliceX: 6, sliceY: 1,
+    anims: {"run-anim": {from: 0, to: 5, loop:true}}
+})
+loadSprite("jump-sprite", "Assets/Mage/mage jump.png",{
+    sliceX: 4, sliceY: 1,
+    anims: {"jump-anim": {from: 0, to: 3, loop:true}}
+})
+loadSprite("fall-sprite", "Assets/Mage/mage fall.png",{
+    sliceX: 2, sliceY: 1,
+    anims: {"fall-anim": {from: 0, to: 0, loop:false}}
+})
+loadSprite("liz-idle-sprite", "Assets/Enemys/lizard Idle.png", {
+    sliceX: 3, sliceY: 1,
+    anims : {"liz-idle-anim": {from: 0, to: 2, loop:true}}
+})
+loadSprite("liz-walk-sprite", "Assets/Enemys/lizard Idle.png", {
+    sliceX: 4, sliceY: 1,
+    anims : {"liz-walk-anim": {from: 0, to: 3, loop:true}}
+})
+loadSprite("liz-death-sprite", "Assets/Enemys/lizard Idle.png", {
+    sliceX: 4, sliceY: 1,
+    anims : {"liz-death-anim": {from: 0, to: 3, loop:false}}
+})
