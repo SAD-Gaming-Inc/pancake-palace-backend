@@ -160,3 +160,25 @@ onKeyPress("space", () => {
     spawnBullet(player)
     console.log("shoulda shot")
 })
+
+camScale(1)
+class Lizard {
+    static all =[]
+    constructor(x,y){
+        Lizard.all.push(add([
+            sprite("liz-idle-sprite"),
+            scale(1),
+            area({shape: new Rect(vec2(0),64,32), offset: vec2(0,0)}),
+            body(),
+            anchor("center"),
+            pos(x,y),
+            health(1),
+            {
+                speed: 100,
+                direction: "left"
+            },
+            "enemy"
+        ]))
+    }
+}
+let liz1 = new Lizard(300, 500)
