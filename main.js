@@ -1,4 +1,3 @@
-console.log("Apple")
 kaboom({
     // width: 1900,
     // height: 900
@@ -48,7 +47,6 @@ const map = addLevel([
     }
 
 })
-
 loadSprite("idle-sprite", "Assets/Mage/mage.png")
 // loadSprite("eat-sprite", "Assets/Mage/mage idle.png", {
 //     sliceX: 14, sliceY: 1,
@@ -70,13 +68,33 @@ loadSprite("liz-idle-sprite", "Assets/Enemys/lizard Idle.png", {
     sliceX: 3, sliceY: 1,
     anims : {"liz-idle-anim": {from: 0, to: 2, loop:true}}
 })
-loadSprite("liz-walk-sprite", "Assets/Enemys/lizard Idle.png", {
+loadSprite("liz-walk-sprite", "Assets/Enemys/lizard walk.png", {
     sliceX: 4, sliceY: 1,
     anims : {"liz-walk-anim": {from: 0, to: 3, loop:true}}
 })
-loadSprite("liz-death-sprite", "Assets/Enemys/lizard Idle.png", {
+loadSprite("liz-death-sprite", "Assets/Enemys/lizard death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"liz-death-anim": {from: 0, to: 3, loop:false}}
+})
+loadSprite("skull-idle-sprite", "Assets/Enemys/skull Idle.png", {
+    sliceX: 4, sliceY: 1,
+    anims : {"skull-idle-anim": {from: 0, to: 3, loop:true}}
+})
+loadSprite("skull-attack-sprite", "Assets/Enemys/skull attack.png", {
+    sliceX: 3, sliceY: 1,
+    anims : {"skull-idle-anim": {from: 0, to: 2, loop:true}}
+})
+loadSprite("skull-death", "Assets/Enemys/skull death.png", {
+    sliceX: 5, sliceY: 1,
+    anims : {"skull-death-anim": {from: 0, to: 4, loop:false}}
+})
+loadSprite("mos-flight-sprite", "Assets/Enemys/mos flight.png", {
+    sliceX: 3, sliceY: 1,
+    anims : {"mos-flight-anim": {from: 0, to: 2, loop:true}}
+})
+loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
+    sliceX: 4, sliceY: 1,
+    anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
 
 
@@ -162,26 +180,105 @@ onKeyPress("space", () => {
 })
 
 camScale(1)
+// class Lizard {
+//     static all =[]
+//     constructor(x,y){
+//         Lizard.all.push(add([
+//             sprite("liz-idle-sprite"),
+//             scale(1),
+//             area({shape: new Rect(vec2(0),64,32), offset: vec2(0,0)}),
+//             body(),
+//             anchor("center"),
+//             pos(x,y),
+//             health(1),
+//             {
+//                 speed: 100,
+//                 direction: "left"
+//             },
+//             "enemy"
+//         ]))
+//     }
+// }
+
 class Lizard {
-    static all =[]
-    constructor(x,y){
+    static all =[];
+    constructor(x, y){
         Lizard.all.push(add([
-            sprite("liz-idle-sprite"),
+            sprite("liz-walk-sprite"), // Use the walk sprite initially
             scale(1),
-            area({shape: new Rect(vec2(0),64,32), offset: vec2(0,0)}),
+            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
             body(),
             anchor("center"),
-            pos(x,y),
+            pos(x, y),
             health(1),
             {
                 speed: 100,
-                direction: "left"
+                direction: "right", // Start by facing right
             },
             "enemy"
-        ]))
+        ]));
+
+        this.walk();
+    }
+
+    walk() {
+        // Change the lizard's animation to walk-anim
+        Lizard.all[Lizard.all.length - 1].use(sprite("liz-walk-sprite"));
+        Lizard.all[Lizard.all.length - 1].play("liz-walk-anim");
     }
 }
-let liz1 = new Lizard(300, 500)
+let liz1 = new Lizard(300, 880)
+let liz3 = new Lizard(800, 500)
+
+class Mos {
+    static all =[];
+    constructor(x, y){
+        Mos.all.push(add([
+            sprite("mos-flight-sprite"), 
+            scale(1),
+            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            // body(),
+            anchor("center"),
+            pos(x, y),
+            health(1),
+            {
+                speed: 100,
+                direction: "right", 
+            },
+            "enemy"
+        ]));
+
+        this.flight();
+    }
+
+    flight() {
+        // Change the lizard's animation to walk-anim
+        Mos.all[Mos.all.length - 1].use(sprite("mos-flight-sprite"));
+        Mos.all[Mos.all.length - 1].play("mos-flight-anim");
+    }
+}
+
+function onMosUpdate(mos){
+    const playerPosition = player.pos;
+    const mosPosition = mos.pos;
+
+    const directionToPlayer = playerPosition.sub(mosPosition).unit();
+    const movementVector = directionToPlayer.scale(mos.speed);
+
+    mos.move(movementVector.x, movementVector.y); // arctan2 angle formula, don't look into if unless u know trig, just know it works
+
+    // Update the direction based on the player's position
+    if (movementVector.x > 0) {
+        mos.direction = "right";
+        mos.flipX = false;
+    } else {
+        mos.direction = "left";
+        mos.flipX = true;
+    }
+}
+
+let mos1 = new Mos(600,600)
+
 
 // Dynamic Update, collisions logic
 onUpdate(() => {
@@ -220,14 +317,34 @@ onUpdate(() => {
     } else {
         player.flipX = false
     }
-})
+    
+    Lizard.all.forEach(lizard => {
+        if (lizard.direction === "right") {
+            lizard.move(lizard.speed, 0);
+            lizard.flipX = false;
+        } else {
+            lizard.move(-lizard.speed, 0);
+            lizard.flipX = true;
+        }
+    });
 
-onCollide("bullet", "enemy", (b, e) => {
-    destroy(b)
-    e.hurt(1)
+    Mos.all.forEach(mos => {
+        onMosUpdate(mos)
+    });
+  
+ 
+
 })
-on("death", "enemy", (e) => {
-    destroy(e)
+// Mos.all.forEach(mos => {
+//     onMosUpdate(mos)
+// });
+
+onCollide("bullet", "enemy", (bullet, enemy) => {
+    destroy(bullet)
+    enemy.hurt(1)
+})
+on("death", "enemy", (enemy) => {
+    destroy(enemy)
     shake(2)
-    addKaboom(e.pos)
+    addKaboom(enemy.pos)
 })
