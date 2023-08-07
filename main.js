@@ -182,3 +182,42 @@ class Lizard {
     }
 }
 let liz1 = new Lizard(300, 500)
+
+// Dynamic Update, collisions logic
+onUpdate(() => {
+    if (player.previousHeight){
+        player.heightDelta = player.previousHeight - player.pos.y
+    }
+
+    player.previousHeight = player.pos.y
+
+    const cameraLeftBound = 550
+    const cameraRightBound = 3000
+    const cameraVerticalOffset = player.pos.y - 100
+
+    if(cameraLeftBound > player.pos.x){
+        camPos(cameraLeftBound, cameraVerticalOffset)
+    }else if (cameraRightBound > player){
+        camPos(cameraRightBound, cameraVerticalOffset)
+    }else {
+        camPos(player.pos.x, cameraVerticalOffset)
+    }
+    if(player.curAnim() !== 'run-anim' && player.isGrounded()){
+        player.use(sprite('idle-sprite'))
+    }
+
+    if(player.curAnim() !== "jump-anim" && !player.isGrounded() && player.heightDelta > 0){
+        player.use(sprite('jump-sprite'))
+        player.play('jump-anim')
+    }
+    if(player.curAnim() !== "fall-anim" && !player.isGrounded() && player.heightDelta < 0){
+        player.use(sprite('fall-sprite'))
+        player.play('fall-anim')
+    }
+
+    if(player.direction === "left"){
+        player.flipX = true
+    } else {
+        player.flipX = false
+    }
+})
