@@ -103,9 +103,6 @@ setGravity(1000)
 const player = add([
     sprite("idle-sprite"),
     scale(1),
-    // area({shape: new Rect(vec2(0),54,32), offset: vec2(0,74)}),
-    // anchor("topleft"),
-    // body(),
     area({shape: new Rect(vec2(0),64,32), offset: vec2(0,28)}),
     body(),
     anchor("center"),
@@ -115,7 +112,8 @@ const player = add([
         previousHeight: null,
         heightDelta: 0,
         direction: "right"
-    }
+    },
+    "player"
 ])
 
 function spawnBullet(player) {
@@ -132,6 +130,22 @@ function spawnBullet(player) {
         move(bulletDirection, BULLET_SPEED), // Set bullet's movement direction
         offscreen({ destroy: true }),
         "bullet",
+    ]);
+}
+function spawnEnemyBullet(enemy) {
+    const bulletDirection = enemy.direction === "right" ?  0: 180
+    const bulletPosition = vec2(enemy.pos.x, enemy.pos.y + 12); // Set bullet position based on enemy's position
+    console.log("this shoulf")
+    add([
+        rect(30, 20),
+        area(),
+        pos(bulletPosition),
+        anchor("center"),
+        color(139, 0, 0),
+        outline(4),
+        move(bulletDirection, BULLET_SPEED), // Set bullet's movement direction
+        offscreen({ destroy: true }),
+        "enemy bullet",
     ]);
 }
 
@@ -180,25 +194,6 @@ onKeyPress("space", () => {
 })
 
 camScale(1)
-// class Lizard {
-//     static all =[]
-//     constructor(x,y){
-//         Lizard.all.push(add([
-//             sprite("liz-idle-sprite"),
-//             scale(1),
-//             area({shape: new Rect(vec2(0),64,32), offset: vec2(0,0)}),
-//             body(),
-//             anchor("center"),
-//             pos(x,y),
-//             health(1),
-//             {
-//                 speed: 100,
-//                 direction: "left"
-//             },
-//             "enemy"
-//         ]))
-//     }
-// }
 
 class Lizard {
     static all =[];
@@ -214,6 +209,7 @@ class Lizard {
             {
                 speed: 100,
                 direction: "right", // Start by facing right
+                markedForDeletion: false
             },
             "enemy"
         ]));
@@ -244,6 +240,7 @@ class Mos {
             {
                 speed: 100,
                 direction: "right", 
+                markedForDeletion: false,
             },
             "enemy"
         ]));
@@ -278,6 +275,51 @@ function onMosUpdate(mos){
 }
 
 let mos1 = new Mos(600,600)
+
+class Skull {
+    static all =[];
+    constructor(x, y){
+        Skull.all.push(add([
+            sprite("skull-idle-sprite"), 
+            scale(1),
+            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            // body(),
+            anchor("center"),
+            pos(x, y),
+            health(1),
+            {
+                speed: 100,
+                direction: "left", // Start by facing left
+                shootInterval: 2,
+                shootTimer: 0,
+                markedForDeletion: false
+            },
+            "enemy",
+            "skull",
+        ]));
+
+        this.idle();
+    }
+
+    idle() {
+        // Change the lizard's animation to walk-anim
+        Skull.all[Skull.all.length - 1].use(sprite("skull-idle-sprite"));
+        Skull.all[Skull.all.length - 1].play("skull-idle-anim");
+        Skull.all[Skull.all.length - 1].flipX = true
+    }
+}
+function onUpdateSkull(skull){
+        // Update the shoot timer for the Skull
+        skull.shootTimer += dt();
+
+        // Check if the Skull can shoot based on the shoot interval
+        if (skull.shootTimer >= skull.shootInterval) {
+            skull.shootTimer = 0; // Reset the timer
+            spawnEnemyBullet(skull); // Call the bullet spawning function
+        }
+}
+
+let skull1 = new Skull(600,800)
 
 
 // Dynamic Update, collisions logic
@@ -331,20 +373,33 @@ onUpdate(() => {
     Mos.all.forEach(mos => {
         onMosUpdate(mos)
     });
+    Skull.all.forEach(skull => {
+        onUpdateSkull(skull)
+    })
+
+    //filter Dead Enemies
+    Lizard.all = Lizard.all.filter((liz) => !liz.markedForDeletion)
+    Mos.all = Mos.all.filter((mos) => !mos.markedForDeletion)
+    Skull.all = Skull.all.filter((skull) => !skull.markedForDeletion)
+
+
   
  
 
 })
-// Mos.all.forEach(mos => {
-//     onMosUpdate(mos)
-// });
+
 
 onCollide("bullet", "enemy", (bullet, enemy) => {
     destroy(bullet)
     enemy.hurt(1)
 })
+onCollide("enemy bullet", "player", (bullet, player) => {
+    destroy(bullet)
+    addKaboom(player.pos)
+})
 on("death", "enemy", (enemy) => {
     destroy(enemy)
+    enemy.markedForDeletion = true
     shake(2)
     addKaboom(enemy.pos)
 })
