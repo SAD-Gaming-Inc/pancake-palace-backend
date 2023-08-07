@@ -78,3 +78,85 @@ loadSprite("liz-death-sprite", "Assets/Enemys/lizard Idle.png", {
     sliceX: 4, sliceY: 1,
     anims : {"liz-death-anim": {from: 0, to: 3, loop:false}}
 })
+
+
+setGravity(1000)
+
+const player = add([
+    sprite("idle-sprite"),
+    scale(1),
+    // area({shape: new Rect(vec2(0),54,32), offset: vec2(0,74)}),
+    // anchor("topleft"),
+    // body(),
+    area({shape: new Rect(vec2(0),64,32), offset: vec2(0,28)}),
+    body(),
+    anchor("center"),
+    pos(200, 500),
+    {
+        speed: 300,
+        previousHeight: null,
+        heightDelta: 0,
+        direction: "right"
+    }
+])
+
+function spawnBullet(player) {
+    const bulletDirection = player.direction === "right" ?  0: 180
+    const bulletPosition = vec2(player.pos.x, player.pos.y + 12); // Set bullet position based on player's position
+    console.log("this shoulf")
+    add([
+        rect(20, 12),
+        area(),
+        pos(bulletPosition),
+        anchor("center"),
+        color(127, 127, 255),
+        outline(4),
+        move(bulletDirection, BULLET_SPEED), // Set bullet's movement direction
+        offscreen({ destroy: true }),
+        "bullet",
+    ]);
+}
+
+
+
+// player.play("eat-anim");
+
+onKeyDown("right", () => {
+    if(player.curAnim() !== 'run-anim' && player.isGrounded()){
+        player.use(sprite('run-sprite'))
+        player.play('run-anim')
+    }
+    if (player.direction !== 'right') player.direction = "right"
+
+    player.move(player.speed, 0)
+})
+
+onKeyRelease('right', () => {
+    player.use(sprite('idle-sprite'))
+    // player.play('idle-anim')
+})
+
+onKeyDown("left", () => {
+    if(player.curAnim() !== 'run-anim' && player.isGrounded()){
+        player.use(sprite('run-sprite'))
+        player.play('run-anim')
+    }
+    if (player.direction !== 'left') player.direction = "left"
+
+    player.move(-player.speed, 0)
+})
+
+onKeyRelease('left', () => {
+    player.use(sprite('idle-sprite'))
+    // player.play('idle-anim')
+})
+
+onKeyPress('up', () => {
+    if(player.isGrounded()){
+        player.jump()
+    }
+})
+onKeyPress("space", () => {
+    spawnBullet(player)
+    console.log("shoulda shot")
+})
