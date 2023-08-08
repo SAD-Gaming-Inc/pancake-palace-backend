@@ -1,7 +1,12 @@
+
+
 kaboom({
     // width: 1900,
     // height: 900
 })
+
+scene("game", () => {
+
 const BULLET_SPEED = 400
 
 loadSprite("full-castle-background", "Assets/Background.png")
@@ -403,3 +408,4 @@ on("death", "enemy", (enemy) => {
     shake(2)
     addKaboom(enemy.pos)
 })
+});

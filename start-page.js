@@ -2,7 +2,7 @@ kaboom();
 
 
 scene("start", () => {
-   
+    loadFont()
     const bgColor = color(122, 48, 108); 
 
     add([
@@ -25,6 +25,7 @@ scene("start", () => {
         scale(0.75, 0.75),
         anchor("center"),
         area(),
+    //go("character selection") -> would go to character selection page
       ]);
     
       const titleText = add([
@@ -42,6 +43,7 @@ scene("start", () => {
         area(),
       ])
 });
+
 
 
 go("start");
