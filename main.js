@@ -524,3 +524,4 @@ onKeyPress("n", () => {
 })
 
 go("game")
+ // test new name
