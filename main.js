@@ -5,7 +5,6 @@ kaboom({
     // height: 900
 })
 
-scene("game", () => {
 
 const BULLET_SPEED = 400
 
@@ -408,4 +407,3 @@ on("death", "enemy", (enemy) => {
     shake(2)
     addKaboom(enemy.pos)
 })
-});
