@@ -56,8 +56,8 @@ const Levels =  [ [
     '       0                      ',
     '                              ',
     '                              ',
-    '                              ',
-    '                              ',
+    '       0                       ',
+    '       0                       ',
     '0000000000000000000000000000000  ',
     '000000                   ',
     '222222222                     '
@@ -126,14 +126,18 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
-
+function loadLevel(levelId) {
+    go("game", { levelId });
+}
 
 scene("game", ({ levelId } = { levelId: 0}) => {
+    const backgroundSprite = levelId === 1 ? "pancake-level-background" : "full-castle-background"
+    const backgroundScale =  levelId === 1 ? 1: 2
     add([
-        sprite('full-castle-background'),
+        sprite(backgroundSprite),
         fixed(),
-        scale(2)
-    ])
+        scale(backgroundScale),
+    ]);
     const level = addLevel(Levels[levelId ?? 0], levelconfig)
 
 setGravity(1000)
@@ -511,6 +515,11 @@ on("death", "enemy", (enemy) => {
     shake(2)
     addKaboom(enemy.pos)
 })
+onKeyPress("n", () => {
+    const nextLevelId = 1; // Assuming level 1 is the second level
+    loadLevel(nextLevelId);
+});
+
 
 })
 
