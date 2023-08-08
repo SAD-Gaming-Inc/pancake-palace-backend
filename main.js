@@ -96,6 +96,7 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
+loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
 
 
 setGravity(1000)
@@ -238,7 +239,7 @@ class Mos {
             pos(x, y),
             health(1),
             {
-                speed: 100,
+                speed: 140,
                 direction: "right", 
                 markedForDeletion: false,
             },
@@ -321,6 +322,65 @@ function onUpdateSkull(skull){
 
 let skull1 = new Skull(600,800)
 
+// class Axe {
+//     static all =[];
+//     constructor(x, y){
+//         Axe.all.push(add([
+//             sprite("axe-trap"), 
+//             scale(3),
+//             area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+//             // body(),
+//             anchor("center"),
+//             pos(x, y),
+//             health(1),
+//             {
+//                 speed: 100,
+//                 markedForDeletion: false,
+//                 angle: 0
+//             },
+//             "obstacle",
+//         ]));
+
+//     }
+
+// }
+
+// function onAxeUpdate(axe){
+//     //code
+// }
+class Axe {
+    static all = [];
+    constructor(x, y) {
+        Axe.all.push(add([
+            sprite("axe-trap"),
+            scale(3),
+            area({shape: new Rect(vec2(0), 32, 16), offset: vec2(0, 40)}),
+            anchor(vec2(0, -0.75)),
+            center({ origin: "top", x: 70 }),
+            pos(x, y),
+            health(1),
+            {
+                angle: 0,
+                speed: 100,
+                markedForDeletion: false,
+            },
+            "obstacle",
+
+        ]));
+    }
+}
+
+
+function onAxeUpdate(axe) {
+    // Update the axe's angle
+    axe.angle += dt() * 50; // You can adjust the rotation speed as needed
+    axe.use(sprite("axe-trap"), {
+        rotation: axe.angle,
+    })
+}
+
+let axe1 = new Axe(400, 860)
+
 
 // Dynamic Update, collisions logic
 onUpdate(() => {
@@ -376,6 +436,9 @@ onUpdate(() => {
     Skull.all.forEach(skull => {
         onUpdateSkull(skull)
     })
+    Axe.all.forEach(axe => {
+        onAxeUpdate(axe);
+    });
 
     //filter Dead Enemies
     Lizard.all = Lizard.all.filter((liz) => !liz.markedForDeletion)
