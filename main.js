@@ -3,8 +3,11 @@ kaboom({
     // height: 900
 })
 const BULLET_SPEED = 400
+const FALL_DEATH = 1800
 
 loadSprite("full-castle-background", "Assets/Background.png")
+loadSprite("pancake-level-background", "Assets/pancake level background.png")
+
 
 
 add([
@@ -20,7 +23,7 @@ loadSpriteAtlas("tileset.jpg", {
     'deep-block': {x:66, y: 66, width: 64, height: 64},
 })
 
-const map = addLevel([
+const Levels =  [ [
     '       3                       ',
     '       3                       ',
     '       3                       ',
@@ -38,15 +41,41 @@ const map = addLevel([
     '33333333333333333333    33333333333  33333333 33 33 33  ',
     '222222222                     ',
     '222222222                     '
-], {
+], 
+
+[
+    '                              ',
+    '                             ',
+    '                              ',
+    '                            ',
+    '                             ',
+    '                              ',
+    '                              ',
+    '       0                      ',
+    '       0                      ',
+    '       0                      ',
+    '                              ',
+    '                              ',
+    '                              ',
+    '                              ',
+    '0000000000000000000000000000000  ',
+    '000000                   ',
+    '222222222                     '
+], 
+]
+
+
+
+const levelconfig = {
     tileWidth: 64,
     tileHeight: 64,
     tiles: {
+        0: () => [rect(64,64), opacity(0), area(), body({isStatic: true})],
         2: () => [sprite("deep-block"), area(), body({isStatic: true})],
         3: () => [sprite("solid-top"), area(), body({isStatic: true})],
     }
 
-})
+}
 loadSprite("idle-sprite", "Assets/Mage/mage.png")
 // loadSprite("eat-sprite", "Assets/Mage/mage idle.png", {
 //     sliceX: 14, sliceY: 1,
@@ -99,7 +128,20 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
 
 
+scene("game", ({ levelId } = { levelId: 0}) => {
+    add([
+        sprite('full-castle-background'),
+        fixed(),
+        scale(2)
+    ])
+    const level = addLevel(Levels[levelId ?? 0], levelconfig)
+
 setGravity(1000)
+// add([
+//     sprite('full-castle-background'),
+//     fixed(),
+//     scale(2)
+// ])
 
 const player = add([
     sprite("idle-sprite"),
@@ -283,7 +325,7 @@ class Skull {
         Skull.all.push(add([
             sprite("skull-idle-sprite"), 
             scale(1),
-            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            area({shape: new Rect(vec2(0), 64, 64), offset: vec2(0, 0)}),
             // body(),
             anchor("center"),
             pos(x, y),
@@ -419,6 +461,9 @@ onUpdate(() => {
     } else {
         player.flipX = false
     }
+    if (player.pos.y >= FALL_DEATH) {
+        go("game")
+    }
     
     Lizard.all.forEach(lizard => {
         if (lizard.direction === "right") {
@@ -466,3 +511,7 @@ on("death", "enemy", (enemy) => {
     shake(2)
     addKaboom(enemy.pos)
 })
+
+})
+
+go("game")
