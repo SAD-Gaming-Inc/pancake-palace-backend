@@ -7,8 +7,11 @@ kaboom({
 
 
 const BULLET_SPEED = 400
+const FALL_DEATH = 1800
 
 loadSprite("full-castle-background", "Assets/Background.png")
+loadSprite("pancake-level-background", "Assets/pancake level background.png")
+
 
 
 add([
@@ -24,7 +27,7 @@ loadSpriteAtlas("tileset.jpg", {
     'deep-block': {x:66, y: 66, width: 64, height: 64},
 })
 
-const map = addLevel([
+const Levels =  [ [
     '       3                       ',
     '       3                       ',
     '       3                       ',
@@ -42,15 +45,41 @@ const map = addLevel([
     '33333333333333333333    33333333333  33333333 33 33 33  ',
     '222222222                     ',
     '222222222                     '
-], {
+], 
+
+[
+    '                              ',
+    '                             ',
+    '                              ',
+    '                            ',
+    '                             ',
+    '                              ',
+    '                              ',
+    '       0                      ',
+    '       0                      ',
+    '       0                      ',
+    '                              ',
+    '                              ',
+    '       0                       ',
+    '       0                       ',
+    '0000000000000000000000000000000  ',
+    '000000                   ',
+    '222222222                     '
+], 
+]
+
+
+
+const levelconfig = {
     tileWidth: 64,
     tileHeight: 64,
     tiles: {
+        0: () => [rect(64,64), opacity(0), area(), body({isStatic: true})],
         2: () => [sprite("deep-block"), area(), body({isStatic: true})],
         3: () => [sprite("solid-top"), area(), body({isStatic: true})],
     }
 
-})
+}
 loadSprite("idle-sprite", "Assets/Mage/mage.png")
 // loadSprite("eat-sprite", "Assets/Mage/mage idle.png", {
 //     sliceX: 14, sliceY: 1,
@@ -100,9 +129,27 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
+loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
+function loadLevel(levelId) {
+    go("game", { levelId });
+}
 
+scene("game", ({ levelId } = { levelId: 0}) => {
+    const backgroundSprite = levelId === 1 ? "pancake-level-background" : "full-castle-background"
+    const backgroundScale =  levelId === 1 ? 1: 2
+    add([
+        sprite(backgroundSprite),
+        fixed(),
+        scale(backgroundScale),
+    ]);
+    const level = addLevel(Levels[levelId ?? 0], levelconfig)
 
 setGravity(1000)
+// add([
+//     sprite('full-castle-background'),
+//     fixed(),
+//     scale(2)
+// ])
 
 const player = add([
     sprite("idle-sprite"),
@@ -242,7 +289,7 @@ class Mos {
             pos(x, y),
             health(1),
             {
-                speed: 100,
+                speed: 140,
                 direction: "right", 
                 markedForDeletion: false,
             },
@@ -286,7 +333,7 @@ class Skull {
         Skull.all.push(add([
             sprite("skull-idle-sprite"), 
             scale(1),
-            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            area({shape: new Rect(vec2(0), 64, 64), offset: vec2(0, 0)}),
             // body(),
             anchor("center"),
             pos(x, y),
@@ -324,6 +371,65 @@ function onUpdateSkull(skull){
 }
 
 let skull1 = new Skull(600,800)
+
+// class Axe {
+//     static all =[];
+//     constructor(x, y){
+//         Axe.all.push(add([
+//             sprite("axe-trap"), 
+//             scale(3),
+//             area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+//             // body(),
+//             anchor("center"),
+//             pos(x, y),
+//             health(1),
+//             {
+//                 speed: 100,
+//                 markedForDeletion: false,
+//                 angle: 0
+//             },
+//             "obstacle",
+//         ]));
+
+//     }
+
+// }
+
+// function onAxeUpdate(axe){
+//     //code
+// }
+class Axe {
+    static all = [];
+    constructor(x, y) {
+        Axe.all.push(add([
+            sprite("axe-trap"),
+            scale(3),
+            area({shape: new Rect(vec2(0), 32, 16), offset: vec2(0, 40)}),
+            anchor(vec2(0, -0.75)),
+            center({ origin: "top", x: 70 }),
+            pos(x, y),
+            health(1),
+            {
+                angle: 0,
+                speed: 100,
+                markedForDeletion: false,
+            },
+            "obstacle",
+
+        ]));
+    }
+}
+
+
+function onAxeUpdate(axe) {
+    // Update the axe's angle
+    axe.angle += dt() * 50; // You can adjust the rotation speed as needed
+    axe.use(sprite("axe-trap"), {
+        rotation: axe.angle,
+    })
+}
+
+let axe1 = new Axe(400, 860)
 
 
 // Dynamic Update, collisions logic
@@ -363,6 +469,9 @@ onUpdate(() => {
     } else {
         player.flipX = false
     }
+    if (player.pos.y >= FALL_DEATH) {
+        go("game")
+    }
     
     Lizard.all.forEach(lizard => {
         if (lizard.direction === "right") {
@@ -380,6 +489,9 @@ onUpdate(() => {
     Skull.all.forEach(skull => {
         onUpdateSkull(skull)
     })
+    Axe.all.forEach(axe => {
+        onAxeUpdate(axe);
+    });
 
     //filter Dead Enemies
     Lizard.all = Lizard.all.filter((liz) => !liz.markedForDeletion)
@@ -407,3 +519,13 @@ on("death", "enemy", (enemy) => {
     shake(2)
     addKaboom(enemy.pos)
 })
+onKeyPress("n", () => {
+    const nextLevelId = 1; // Assuming level 1 is the second level
+    loadLevel(nextLevelId);
+});
+
+
+})
+
+go("game")
+ // test new name
