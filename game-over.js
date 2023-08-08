@@ -2,7 +2,9 @@ kaboom()
 
 scene("gameOver", () => {
     const bg = add([
-        rect(width(), height()),
+        sprite('full-castle-background'),
+        fixed(),
+        scale(2),
         color(0, 0, 0, 0.5),
         pos(width() / 2, height() / 2),
         anchor("center"),
@@ -16,11 +18,10 @@ scene("gameOver", () => {
             size: 50, 
             color: rgb(255, 255, 255),
             pos: vec2(width() / 2, height() / 2),
- //           anchor("center"),
+            anchor("center"),
         }),
     ]);
-
-    keyPress("enter", () => {
+    onkeyPress("enter", () => {
         go("start");
     });
 });
