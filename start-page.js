@@ -28,7 +28,7 @@ scene("start", () => {
     //go("character selection") -> would go to character selection page
       ]);
     
-      const titleText = add([
+    const titleText = add([
         text("Pancake Palace", {
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
@@ -42,6 +42,9 @@ scene("start", () => {
         anchor("center"),
         area(),
       ])
+    onKeyPress("b", () => {
+        go("gameOver");   
+      });
 });
 
 
