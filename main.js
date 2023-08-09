@@ -597,11 +597,10 @@ onKeyPress("n", () => {
     loadLevel(nextLevelId);
 });
 
-=======
 player.on("death", () => {
 
     player.health = 3;
-    go("start");
+    go("lose");
 });
 onCollide("enemy bullet", "player", (bullet, player) => {
     destroy(bullet);
