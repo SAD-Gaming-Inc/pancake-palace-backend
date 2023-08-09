@@ -430,32 +430,6 @@ function onUpdateSkull(skull){
 
 let skull1 = new Skull(600,800)
 
-// class Axe {
-//     static all =[];
-//     constructor(x, y){
-//         Axe.all.push(add([
-//             sprite("axe-trap"), 
-//             scale(3),
-//             area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
-//             // body(),
-//             anchor("center"),
-//             pos(x, y),
-//             health(1),
-//             {
-//                 speed: 100,
-//                 markedForDeletion: false,
-//                 angle: 0
-//             },
-//             "obstacle",
-//         ]));
-
-//     }
-
-// }
-
-// function onAxeUpdate(axe){
-//     //code
-// }
 class Axe {
     static all = [];
     constructor(x, y) {
@@ -600,4 +574,38 @@ onKeyPress("n", () => {
     const nextLevelId = 1; // Assuming level 1 is the second level
     loadLevel(nextLevelId);
 });
+
+
+
+player.on("death", () => {
+
+    player.health = 3;
+    go("start");
+});
+onCollide("enemy bullet", "player", (bullet, player) => {
+    destroy(bullet);
+    player.trigger("hurt"); // Trigger player hurt event
+});
+onCollide("enemy", "player", (enemy, player) => {
+    if (player.canBeHurt) {
+        player.canBeHurt = false;
+        player.use(sprite("hurt-sprite"));
+        player.play("hurt-anim", {
+            loop: false,
+            onComplete: () => {
+                player.isHurt = false; // Reset the hurt animation flag
+                player.use(sprite("idle-sprite")); // Return to idle animation after hurt
+            },
+        });
+        wait(player.hurtCooldownDuration, () => {
+            player.canBeHurt = true; // Reset the canBeHurt property after cooldown
+        });
+        player.health--; // Deduct health when hurt
+    }
+});
+
+
+
 })
+
+go("start");
