@@ -113,7 +113,7 @@ loadSprite("liz-death-sprite", "Assets/Enemys/lizard death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"liz-death-anim": {from: 0, to: 3, loop:false}}
 })
-loadSprite("skull-idle-sprite", "Assets/Enemys/skull Idle.png", {
+loadSprite("skull-idle-sprite", "Assets/Enemys/skull idle.png", {
     sliceX: 4, sliceY: 1,
     anims : {"skull-idle-anim": {from: 0, to: 3, loop:true}}
 })
@@ -183,6 +183,28 @@ scene("start", () => {
         go("game");   
       });
 });
+
+scene("lose", () => {
+    let loser = add([
+      sprite('full-castle-background'),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      scale(3),
+      fixed()
+    ]);
+    
+    const gameOverText = add([
+      text("You Lose! Space to Retry"),
+      color(255, 255, 255),
+      anchor("center"),
+      pos(width() / 2, height() / 2),
+    ]);
+    
+    onKeyPress("space", () => {
+        go("game")
+    });
+});
+
 
 scene("game", ({ levelId } = { levelId: 0}) => {
     const backgroundSprite = levelId === 1 ? "pancake-level-background" : "full-castle-background"
@@ -512,7 +534,7 @@ onUpdate(() => {
         player.flipX = false
     }
     if (player.pos.y >= FALL_DEATH) {
-        go("game")
+        go("lose")
     }
     
     Lizard.all.forEach(lizard => {
@@ -575,8 +597,7 @@ onKeyPress("n", () => {
     loadLevel(nextLevelId);
 });
 
-
-
+=======
 player.on("death", () => {
 
     player.health = 3;
