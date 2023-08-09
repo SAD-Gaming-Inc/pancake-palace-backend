@@ -176,9 +176,78 @@ scene("start", () => {
         area(),
       ])
     onKeyPress("enter", () => {
-        go("game");   
+        go("controls");   
       });
 });
+
+scene("controls", () => {
+    let tutorialBg= add([
+      sprite('full-castle-background'),
+      fixed(),
+      scale(2)
+    ])
+    const spacebar = add([
+        text("Press Spacebar shoot",{
+          transform: (idx, ch) => ({
+            color: rgb(255, 255, 255),
+            pos: vec2(0, wave(-1, 1, time() * 4 + idx * 0.2)),
+            scale: wave(1, 1.1, time() * 3 + idx),
+            angle: wave(-8, 9, time() * 3 + idx),
+          }),
+        }),
+        pos(width() / 2, height() / 2.4),
+        scale(0.75, 0.75),
+        anchor("center"),
+        area(),
+      ]);
+      const arrowKeys = add([
+        text("Press Left and Right arrow keys to walk",{
+          transform: (idx, ch) => ({
+            color: rgb(255, 255, 255),
+            pos: vec2(0, wave(-1, 1, time() * 4 + idx * 0.2)),
+            scale: wave(1, 1.1, time() * 3 + idx),
+            angle: wave(-8, 9, time() * 3 + idx),
+          }),
+        }),
+        pos(width() / 2, height() / 2),
+        scale(0.75, 0.75),
+        anchor("center"),
+        area(),
+      ]);
+    
+      const upArrowKey = add([
+        text("Press Up arrow to jump",{
+          transform: (idx, ch) => ({
+            color: rgb(255, 255, 255),
+            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+            scale: wave(1, 1.2, time() * 3 + idx),
+            angle: wave(-24, 9, time() * 3 + idx),
+          }),
+        }),
+        pos(width() / 2, height() / 1.5),
+        scale(0.75, 0.75),
+        anchor("center"),
+        area(),
+      ]);
+    
+      const begin = add([
+        text("Press Enter to Play!",{
+          transform: (idx, ch) => ({
+            color: rgb(255, 255, 255),
+            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+            scale: wave(1, 1.2, time() * 3 + idx),
+            angle: wave(-24, 9, time() * 3 + idx),
+          }),
+        }),
+        pos(width() / 2, height() / 1.2),
+        scale(0.75, 0.75),
+        anchor("center"),
+        area(),
+      ]);
+    onKeyPress("enter", () => {
+      go("game")
+    })
+  })
 
 scene("game", ({ levelId } = { levelId: 0}) => {
     const backgroundSprite = levelId === 1 ? "pancake-level-background" : "full-castle-background"
