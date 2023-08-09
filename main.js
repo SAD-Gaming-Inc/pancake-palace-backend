@@ -26,24 +26,24 @@ loadSpriteAtlas("tileset.jpg", {
 })
 
 const Levels =  [ [
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '                              ',
-    '                              ',
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '                              ',
-    '                              ',
-    '                              ',
-    '                              ',
-    '33333333333333333333    33333333333  33333333 33 33 33  ',
-    '222222222                     ',
-    '222222222                     '
-], 
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                   3                                      ',
+    '                                                    3                                     ',
+    '                                                     3                                    ',
+    '                                                      3                                   ',
+    '                                                       3      S             L             ',
+    '                                                           3                3             ',
+    '                                     M                    3                32             ',
+    '                                                         3   3            322             ',
+    '                                                        3                3222             ',
+    '        L     L      L                                         3     A  32222            ',
+    '3333333333333333333333333333  33   333    3333     3333          333333322222  3333       ',
+    '222222222                                         M                                       ',
+    '222222222                                                                                 '
+  ],
 
 [
     '                              ',
@@ -95,6 +95,10 @@ loadSprite("fall-sprite", "Assets/Mage/mage fall.png",{
     sliceX: 2, sliceY: 1,
     anims: {"fall-anim": {from: 0, to: 0, loop:false}}
 })
+loadSprite("hurt-sprite", "Assets/Mage/mage hurt.png",{
+    sliceX: 4, sliceY: 1,
+    anims: {"hurt-anim": {from: 0, to: 3, loop:false,}}
+})
 loadSprite("liz-idle-sprite", "Assets/Enemys/lizard Idle.png", {
     sliceX: 3, sliceY: 1,
     anims : {"liz-idle-anim": {from: 0, to: 2, loop:true}}
@@ -107,7 +111,7 @@ loadSprite("liz-death-sprite", "Assets/Enemys/lizard death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"liz-death-anim": {from: 0, to: 3, loop:false}}
 })
-loadSprite("skull-idle-sprite", "Assets/Enemys/skull Idle.png", {
+loadSprite("skull-idle-sprite", "Assets/Enemys/skull idle.png", {
     sliceX: 4, sliceY: 1,
     anims : {"skull-idle-anim": {from: 0, to: 3, loop:true}}
 })
@@ -247,6 +251,58 @@ scene("controls", () => {
     })
   })
 
+scene("lose", () => {
+    let loser = add([
+      sprite('full-castle-background'),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      scale(3),
+      fixed()
+    ]);
+    
+    const gameOverText = add([
+      text(`You Lose! Press 'Space' to Retry`),
+      color(255, 255, 255),
+      anchor("center"),
+      pos(width() / 2, height() / 2),
+    ]);
+    
+    onKeyPress("space", () => {
+        go("game")
+    });
+});
+
+scene("win", () => {
+    let winner = add([
+      sprite('pancake-level-background'),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      scale(3),
+      fixed()
+    ]);
+    
+    const winText = add([
+      text(`You Won! Press 'Space' to Play Again`, {
+          transform: (idx, ch) => ({
+            color: rgb(255, 255, 255),
+            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+            scale: wave(1, 1.2, time() * 3 + idx),
+            angle: wave(-24, 9, time() * 3 + idx),
+          }),
+      }),
+    //   color(255, 255, 255),
+      anchor("center"),
+      scale(1.5),
+      pos(width() / 2, height() / 2),
+      area(),
+    ]);
+    
+    onKeyPress("space", () => {
+        go("game")
+    });
+});
+
+
 scene("game", ({ levelId } = { levelId: 0}) => {
     const backgroundSprite = levelId === 1 ? "pancake-level-background" : "full-castle-background"
     const backgroundScale =  levelId === 1 ? 1: 2
@@ -256,6 +312,9 @@ scene("game", ({ levelId } = { levelId: 0}) => {
         scale(backgroundScale),
     ]);
     const level = addLevel(Levels[levelId ?? 0], levelconfig)
+    const tileSize = levelconfig.tileWidth;
+  
+
 
 setGravity(1000)
 // add([
@@ -271,11 +330,15 @@ const player = add([
     body(),
     anchor("center"),
     pos(200, 500),
+    health(3),
     {
         speed: 300,
         previousHeight: null,
         heightDelta: 0,
-        direction: "right"
+        direction: "right",
+        canBeHurt: true,
+        health: 3,
+        hurtCooldownDuration: 2, // Cooldown duration in seconds
     },
     "player"
 ])
@@ -299,7 +362,6 @@ function spawnBullet(player) {
 function spawnEnemyBullet(enemy) {
     const bulletDirection = enemy.direction === "right" ?  0: 180
     const bulletPosition = vec2(enemy.pos.x, enemy.pos.y + 12); // Set bullet position based on enemy's position
-    console.log("this shoulf")
     add([
         rect(30, 20),
         area(),
@@ -370,6 +432,7 @@ class Lizard {
             anchor("center"),
             pos(x, y),
             health(1),
+            offscreen(),
             {
                 speed: 100,
                 direction: "right", // Start by facing right
@@ -387,8 +450,8 @@ class Lizard {
         Lizard.all[Lizard.all.length - 1].play("liz-walk-anim");
     }
 }
-let liz1 = new Lizard(300, 880)
-let liz3 = new Lizard(800, 500)
+// let liz1 = new Lizard(300, 880)
+// let liz3 = new Lizard(800, 500)
 
 class Mos {
     static all =[];
@@ -401,6 +464,7 @@ class Mos {
             anchor("center"),
             pos(x, y),
             health(1),
+            offscreen(),
             {
                 speed: 140,
                 direction: "right", 
@@ -438,7 +502,7 @@ function onMosUpdate(mos){
     }
 }
 
-let mos1 = new Mos(600,600)
+// let mos1 = new Mos(600,600)
 
 class Skull {
     static all =[];
@@ -451,6 +515,7 @@ class Skull {
             anchor("center"),
             pos(x, y),
             health(1),
+            offscreen(),
             {
                 speed: 100,
                 direction: "left", // Start by facing left
@@ -483,7 +548,7 @@ function onUpdateSkull(skull){
         }
 }
 
-let skull1 = new Skull(600,800)
+// let skull1 = new Skull(600,800)
 
 // class Axe {
 //     static all =[];
@@ -542,7 +607,28 @@ function onAxeUpdate(axe) {
     })
 }
 
-let axe1 = new Axe(400, 860)
+sevel = Levels[levelId]
+console.log(sevel)
+
+for (let y = 0; y < sevel.length; y++) {
+    for (let x = 0; x < sevel[y].length; x++) {
+     if (sevel[y][x] === 'L') {
+        new Lizard(x * tileSize, y * tileSize);
+        console.log("Found an L at" + x)
+      }else if (sevel[y][x] === 'M') {
+        new Mos(x * tileSize, y * tileSize);
+        console.log("Found an M at" + x)
+      }
+      if (sevel[y][x] === 'S') {
+        new Skull(x * tileSize, y * tileSize);
+        console.log("Found an L at" + x)
+      }
+      if (sevel[y][x] === 'A') {
+        new Axe(x * tileSize, y * tileSize + 96);
+        console.log("Found an A at" + x)
+      }
+    }
+  }
 
 
 // Dynamic Update, collisions logic
@@ -564,7 +650,7 @@ onUpdate(() => {
     }else {
         camPos(player.pos.x, cameraVerticalOffset)
     }
-    if(player.curAnim() !== 'run-anim' && player.isGrounded()){
+    if(player.curAnim() !== 'run-anim' && player.curAnim() !== 'hurt-anim' && player.isGrounded()){
         player.use(sprite('idle-sprite'))
     }
 
@@ -583,10 +669,13 @@ onUpdate(() => {
         player.flipX = false
     }
     if (player.pos.y >= FALL_DEATH) {
-        go("game")
+        go("lose")
     }
     
     Lizard.all.forEach(lizard => {
+        if (lizard.isOffScreen()) {
+            return; // Skip updating offscreen lizard
+        }
         if (lizard.direction === "right") {
             lizard.move(lizard.speed, 0);
             lizard.flipX = false;
@@ -597,9 +686,15 @@ onUpdate(() => {
     });
 
     Mos.all.forEach(mos => {
+        if (mos.isOffScreen()) {
+            return; 
+        }
         onMosUpdate(mos)
     });
     Skull.all.forEach(skull => {
+        if (skull.isOffScreen()) {
+            return; 
+        }
         onUpdateSkull(skull)
     })
     Axe.all.forEach(axe => {
@@ -622,10 +717,10 @@ onCollide("bullet", "enemy", (bullet, enemy) => {
     destroy(bullet)
     enemy.hurt(1)
 })
-onCollide("enemy bullet", "player", (bullet, player) => {
-    destroy(bullet)
-    addKaboom(player.pos)
-})
+// onCollide("enemy bullet", "player", (bullet, player) => {
+//     destroy(bullet)
+//     addKaboom(player.pos)
+// })
 on("death", "enemy", (enemy) => {
     destroy(enemy)
     enemy.markedForDeletion = true
@@ -635,7 +730,40 @@ on("death", "enemy", (enemy) => {
 onKeyPress("n", () => {
     const nextLevelId = 1; // Assuming level 1 is the second level
     loadLevel(nextLevelId);
+    levelId = 1
 });
+
+player.on("death", () => {
+
+    player.health = 3;
+    go("lose");
+});
+onCollide("enemy bullet", "player", (bullet, player) => {
+    destroy(bullet);
+    player.trigger("hurt"); // Trigger player hurt event
+});
+onCollide("enemy", "player", (enemy, player) => {
+    if (player.canBeHurt) {
+        player.canBeHurt = false;
+        player.use(sprite("hurt-sprite"));
+        player.play("hurt-anim", {
+            loop: false,
+            onComplete: () => {
+                player.isHurt = false; // Reset the hurt animation flag
+                player.use(sprite("idle-sprite")); // Return to idle animation after hurt
+            },
+        });
+        wait(player.hurtCooldownDuration, () => {
+            player.canBeHurt = true; // Reset the canBeHurt property after cooldown
+        });
+        player.health--; // Deduct health when hurt
+        console.log(player.health)
+        if(player.health <= 0){
+            player.trigger("death")
+        }
+    }
+});
+
 
 
 })
