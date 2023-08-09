@@ -180,27 +180,26 @@ scene("start", () => {
       });
 });
 
-// scene("lose", () => {
-
-//     const bg = add([ 
-//         sprite('full-castle-background'),
-//         fixed(),
-//         scale(2)
-//         ]); 
-//     const gameOverText = add([ 
-//         text("Game Over", { 
-//             value: "Game Over", 
-//             font: "arial", 
-//             size: 50, 
-//             color: rgb(255, 255, 255), 
-//             pos: vec2(width() / 2, height() / 2), 
-//             // anchor("center"), 
-//             }), 
-//         ]); 
-//         onKeyPress("enter", () => { 
-//             go("start"); 
-//         }); 
-//     });
+scene("lose", () => {
+    let loser = add([
+      sprite('full-castle-background'),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      scale(3),
+      fixed()
+    ]);
+    
+    const gameOverText = add([
+      text("You Lose! Space to Retry"),
+      color(255, 255, 255),
+      anchor("center"),
+      pos(width() / 2, height() / 2),
+    ]);
+    
+    onKeyPress("space", () => {
+        go("game")
+    });
+});
 
 
 scene("game", ({ levelId } = { levelId: 0}) => {
