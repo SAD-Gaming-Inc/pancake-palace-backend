@@ -709,6 +709,15 @@ for (let y = 0; y < sevel.length; y++) {
       if (sevel[y][x] === 'A') {
         new Axe(x * tileSize, y * tileSize + 96);
       }
+      if (sevel[y][x] === 'B') {
+        new Blade(x * tileSize, y * tileSize + 96);
+      }
+      if (sevel[y][x] === 'X') {
+        new Skull(x * tileSize, y * tileSize + 96, 1);
+      }
+      if (sevel[y][x] === 'Z') {
+        new Skull(x * tileSize, y * tileSize + 96, 1, 0.80);
+      }
     }
   }
 
@@ -775,9 +784,9 @@ onUpdate(() => {
         onMosUpdate(mos)
     });
     Skull.all.forEach(skull => {
-        if (skull.isOffScreen()) {
-            return; 
-        }
+        // if (skull.isOffScreen()) {
+        //     return; 
+        // }
         onUpdateSkull(skull)
     })
     Axe.all.forEach(axe => {
