@@ -618,6 +618,7 @@ if (levelId === 1){
             pos(400, 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
+            "obstacle"
         ]);
 
         // wait a random amount of time to spawn next tree
@@ -764,6 +765,27 @@ onCollide("enemy bullet", "player", (bullet, player) => {
     player.trigger("hurt"); // Trigger player hurt event
 });
 onCollide("enemy", "player", (enemy, player) => {
+    if (player.canBeHurt) {
+        player.canBeHurt = false;
+        player.use(sprite("hurt-sprite"));
+        player.play("hurt-anim", {
+            loop: false,
+            onComplete: () => {
+                player.isHurt = false; // Reset the hurt animation flag
+                player.use(sprite("idle-sprite")); // Return to idle animation after hurt
+            },
+        });
+        wait(player.hurtCooldownDuration, () => {
+            player.canBeHurt = true; // Reset the canBeHurt property after cooldown
+        });
+        player.health--; // Deduct health when hurt
+        console.log(player.health)
+        if(player.health <= 0){
+            player.trigger("death")
+        }
+    }
+});
+onCollide("obstacle", "player", (obstacle, player) => {
     if (player.canBeHurt) {
         player.canBeHurt = false;
         player.use(sprite("hurt-sprite"));
