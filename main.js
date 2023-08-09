@@ -132,6 +132,7 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
+loadSprite("pancake", 'Assets/Enemys/pancake.png')
 function loadLevel(levelId) {
     go("game", { levelId });
 }
@@ -605,6 +606,23 @@ function onAxeUpdate(axe) {
     axe.use(sprite("axe-trap"), {
         rotation: axe.angle,
     })
+}
+
+if (levelId === 1){
+    function spawnPancake(){
+      add([
+            sprite('pancake'),
+            area(),
+            pos(400, 0),
+            // anchor("center"),
+            move(DOWN, BULLET_SPEED),
+        ]);
+
+        // wait a random amount of time to spawn next tree
+        wait(rand(0.5, 1.5), spawnPancake); 
+        console.log('should be pancake')
+    }
+    spawnPancake();
 }
 
 sevel = Levels[levelId]
