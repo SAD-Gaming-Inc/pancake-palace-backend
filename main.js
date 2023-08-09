@@ -1,5 +1,6 @@
 
 
+
 kaboom({
     // width: 1900,
     // height: 900
@@ -133,8 +134,13 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
+loadSprite("blade-spin-sprite", "Assets/Enemys/blade trap.png", {
+    sliceX: 3, sliceY: 1,
+    anims : {"blade-spin-anim": {from: 0, to: 2, loop:true}}
+})
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
 loadSprite("pancake", 'Assets/Enemys/pancake.png')
+
 function loadLevel(levelId) {
     go("game", { levelId });
 }
@@ -438,7 +444,7 @@ class Lizard {
             offscreen(),
             {
                 speed: 100,
-                direction: "right", // Start by facing right
+                direction: "left", // Start by facing left
                 markedForDeletion: false
             },
             "enemy"
@@ -604,35 +610,79 @@ class Axe {
 
 function onAxeUpdate(axe) {
     // Update the axe's angle
-    axe.angle += dt() * 50; // You can adjust the rotation speed as needed
+    axe.angle += dt() * 80; 
     axe.use(sprite("axe-trap"), {
         rotation: axe.angle,
     })
 }
+class Blade {
+    static all =[];
+    constructor(x, y){
+        Blade.all.push(add([
+            sprite("blade-spin-sprite"), 
+            scale(1),
+            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            anchor("center"),
+            pos(x, y),
+            health(1),
+            offscreen(),
+            {
+                speed: 3,
+                direction: "left", // Start by facing left
+                ybottom: y + 200,
+                ytop: y - 200,
+                goingUp: true
+            },
+            "obstacle"
+        ]));
+
+        this.spin();
+    }
+
+    spin() {
+        Blade.all[Blade.all.length - 1].use(sprite("blade-spin-sprite"));
+        Blade.all[Blade.all.length - 1].play("blade-spin-anim");
+    }
+}
+
+function onBladeUpdate(blade) {
+    if(blade.goingUp){
+        if(blade.pos.y < blade.ytop){
+            blade.goingUp = false
+        }else {blade.pos.y-= blade.speed}
+    }else {
+        if(blade.pos.y > blade.ybottom){
+            blade.goingUp = true
+        }else {blade.pos.y+= blade.speed}
+    }
+}
+
+// let blade1 = new Blade(400, 800)
 
 if (levelId === 1){
     function spawnPancake(){
       add([
             sprite('pancake'),
             area(),
-            pos(400, 0),
+            scale(2),
+            pos(rand(width()), 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
             "obstacle"
         ]);
 
         // wait a random amount of time to spawn next tree
-        wait(rand(0.5, 1.5), spawnPancake); 
+        // wait(rand(0.5, 1.5), spawnPancake); 
         console.log('should be pancake')
     }
 
-    function timedPancakeLevel(){
+  function timedPancakeLevel(){
         wait(30, () => {
             go("win")
-        })
-    }
-    spawnPancake();
+        })   
+  }
     timedPancakeLevel();
+    loop(rand(0.5, 2), spawnPancake);
 }
 
 sevel = Levels[levelId]
@@ -642,18 +692,14 @@ for (let y = 0; y < sevel.length; y++) {
     for (let x = 0; x < sevel[y].length; x++) {
      if (sevel[y][x] === 'L') {
         new Lizard(x * tileSize, y * tileSize);
-        console.log("Found an L at" + x)
       }else if (sevel[y][x] === 'M') {
         new Mos(x * tileSize, y * tileSize);
-        console.log("Found an M at" + x)
       }
       if (sevel[y][x] === 'S') {
         new Skull(x * tileSize, y * tileSize);
-        console.log("Found an L at" + x)
       }
       if (sevel[y][x] === 'A') {
         new Axe(x * tileSize, y * tileSize + 96);
-        console.log("Found an A at" + x)
       }
     }
   }
@@ -729,6 +775,9 @@ onUpdate(() => {
     Axe.all.forEach(axe => {
         onAxeUpdate(axe);
     });
+    Blade.all.forEach(blade => {
+        onBladeUpdate(blade)
+    })
 
     //filter Dead Enemies
     Lizard.all = Lizard.all.filter((liz) => !liz.markedForDeletion)
