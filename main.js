@@ -133,8 +133,13 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
+loadSprite("blade-spin-sprite", "Assets/Enemys/blade trap.png", {
+    sliceX: 3, sliceY: 1,
+    anims : {"blade-spin-anim": {from: 0, to: 2, loop:true}}
+})
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
 loadSprite("pancake", 'Assets/Enemys/pancake.png')
+
 function loadLevel(levelId) {
     go("game", { levelId });
 }
@@ -438,7 +443,7 @@ class Lizard {
             offscreen(),
             {
                 speed: 100,
-                direction: "right", // Start by facing right
+                direction: "left", // Start by facing left
                 markedForDeletion: false
             },
             "enemy"
@@ -604,7 +609,7 @@ class Axe {
 
 function onAxeUpdate(axe) {
     // Update the axe's angle
-    axe.angle += dt() * 50; // You can adjust the rotation speed as needed
+    axe.angle += dt() * 80; 
     axe.use(sprite("axe-trap"), {
         rotation: axe.angle,
     })
@@ -635,18 +640,14 @@ for (let y = 0; y < sevel.length; y++) {
     for (let x = 0; x < sevel[y].length; x++) {
      if (sevel[y][x] === 'L') {
         new Lizard(x * tileSize, y * tileSize);
-        console.log("Found an L at" + x)
       }else if (sevel[y][x] === 'M') {
         new Mos(x * tileSize, y * tileSize);
-        console.log("Found an M at" + x)
       }
       if (sevel[y][x] === 'S') {
         new Skull(x * tileSize, y * tileSize);
-        console.log("Found an L at" + x)
       }
       if (sevel[y][x] === 'A') {
         new Axe(x * tileSize, y * tileSize + 96);
-        console.log("Found an A at" + x)
       }
     }
   }
