@@ -763,11 +763,7 @@ onCollide("enemy", "player", (enemy, player) => {
         }
     }
 });
-
-
-
+  
 })
 
 go("start");
-
- 
