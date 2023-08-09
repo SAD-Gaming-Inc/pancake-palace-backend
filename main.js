@@ -36,14 +36,14 @@ const Levels =  [ [
     '                                                    3                                     ',
     '                                                     3                                    ',
     '                                                      3                                   ',
-    '             L                                         3                                  ',
-    '                                                           3                              ',
-    '                                                                            3             ',
-    '                                                         3    3            32             ',
-    '                                                        3                 322             ',
-    'L       L           L    L                                      3   L    3222             ',
-    '3333333333333333333333333333  33   333    3333     3333            3333332222   33333     ',
-    '222222222                                                                                 ',
+    '                                                       3      S             L             ',
+    '                                                           3                3             ',
+    '                                     M                    3                32             ',
+    '                                                         3   3            322             ',
+    '                                                        3                3222             ',
+    '        L     L      L                                         3     A  32222            ',
+    '3333333333333333333333333333  33   333    3333     3333          333333322222  3333       ',
+    '222222222                                         M                                       ',
     '222222222                                                                                 '
   ],
 
@@ -218,6 +218,7 @@ const player = add([
         heightDelta: 0,
         direction: "right",
         canBeHurt: true,
+        health: 3,
         hurtCooldownDuration: 2, // Cooldown duration in seconds
     },
     "player"
@@ -330,8 +331,8 @@ class Lizard {
         Lizard.all[Lizard.all.length - 1].play("liz-walk-anim");
     }
 }
-let liz1 = new Lizard(300, 880)
-let liz3 = new Lizard(800, 500)
+// let liz1 = new Lizard(300, 880)
+// let liz3 = new Lizard(800, 500)
 
 class Mos {
     static all =[];
@@ -382,7 +383,7 @@ function onMosUpdate(mos){
     }
 }
 
-let mos1 = new Mos(600,600)
+// let mos1 = new Mos(600,600)
 
 class Skull {
     static all =[];
@@ -428,8 +429,34 @@ function onUpdateSkull(skull){
         }
 }
 
-let skull1 = new Skull(600,800)
+// let skull1 = new Skull(600,800)
 
+// class Axe {
+//     static all =[];
+//     constructor(x, y){
+//         Axe.all.push(add([
+//             sprite("axe-trap"), 
+//             scale(3),
+//             area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+//             // body(),
+//             anchor("center"),
+//             pos(x, y),
+//             health(1),
+//             {
+//                 speed: 100,
+//                 markedForDeletion: false,
+//                 angle: 0
+//             },
+//             "obstacle",
+//         ]));
+
+//     }
+
+// }
+
+// function onAxeUpdate(axe){
+//     //code
+// }
 class Axe {
     static all = [];
     constructor(x, y) {
@@ -466,9 +493,20 @@ sevel = Levels[0]
 console.log(sevel)
 for (let y = 0; y < sevel.length; y++) {
     for (let x = 0; x < sevel[y].length; x++) {
-      if (sevel[y][x] === 'L') {
+     if (sevel[y][x] === 'L') {
         new Lizard(x * tileSize, y * tileSize);
         console.log("Found an L at" + x)
+      }else if (sevel[y][x] === 'M') {
+        new Mos(x * tileSize, y * tileSize);
+        console.log("Found an M at" + x)
+      }
+      if (sevel[y][x] === 'S') {
+        new Skull(x * tileSize, y * tileSize);
+        console.log("Found an L at" + x)
+      }
+      if (sevel[y][x] === 'A') {
+        new Axe(x * tileSize, y * tileSize);
+        console.log("Found an A at" + x)
       }
     }
   }
@@ -601,6 +639,10 @@ onCollide("enemy", "player", (enemy, player) => {
             player.canBeHurt = true; // Reset the canBeHurt property after cooldown
         });
         player.health--; // Deduct health when hurt
+        console.log(player.health)
+        if(player.health <= 0){
+            player.trigger("death")
+        }
     }
 });
 
