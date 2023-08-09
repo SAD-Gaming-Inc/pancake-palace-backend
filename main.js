@@ -675,6 +675,13 @@ if (levelId === 1){
         // wait(rand(0.5, 1.5), spawnPancake); 
         console.log('should be pancake')
     }
+
+  function timedPancakeLevel(){
+        wait(30, () => {
+            go("win")
+        })   
+  }
+    timedPancakeLevel();
     loop(rand(0.5, 2), spawnPancake);
 }
 
