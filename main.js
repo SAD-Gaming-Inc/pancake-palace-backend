@@ -1,5 +1,3 @@
-
-
 kaboom({
     // width: 1900,
     // height: 900
