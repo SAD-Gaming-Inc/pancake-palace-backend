@@ -1,5 +1,6 @@
 
 
+
 kaboom({
     // width: 1900,
     // height: 900
@@ -614,6 +615,49 @@ function onAxeUpdate(axe) {
         rotation: axe.angle,
     })
 }
+class Blade {
+    static all =[];
+    constructor(x, y){
+        Blade.all.push(add([
+            sprite("blade-spin-sprite"), 
+            scale(1),
+            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            anchor("center"),
+            pos(x, y),
+            health(1),
+            offscreen(),
+            {
+                speed: 3,
+                direction: "left", // Start by facing left
+                ybottom: y + 200,
+                ytop: y - 200,
+                goingUp: true
+            },
+            "obstacle"
+        ]));
+
+        this.spin();
+    }
+
+    spin() {
+        Blade.all[Blade.all.length - 1].use(sprite("blade-spin-sprite"));
+        Blade.all[Blade.all.length - 1].play("blade-spin-anim");
+    }
+}
+
+function onBladeUpdate(blade) {
+    if(blade.goingUp){
+        if(blade.pos.y < blade.ytop){
+            blade.goingUp = false
+        }else {blade.pos.y-= blade.speed}
+    }else {
+        if(blade.pos.y > blade.ybottom){
+            blade.goingUp = true
+        }else {blade.pos.y+= blade.speed}
+    }
+}
+
+// let blade1 = new Blade(400, 800)
 
 if (levelId === 1){
     function spawnPancake(){
@@ -724,6 +768,9 @@ onUpdate(() => {
     Axe.all.forEach(axe => {
         onAxeUpdate(axe);
     });
+    Blade.all.forEach(blade => {
+        onBladeUpdate(blade)
+    })
 
     //filter Dead Enemies
     Lizard.all = Lizard.all.filter((liz) => !liz.markedForDeletion)
