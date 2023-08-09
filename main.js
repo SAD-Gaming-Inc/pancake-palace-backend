@@ -28,24 +28,24 @@ loadSpriteAtlas("tileset.jpg", {
 })
 
 const Levels =  [ [
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '                              ',
-    '                              ',
-    '       3                       ',
-    '       3                       ',
-    '       3                       ',
-    '                              ',
-    '                              ',
-    '                              ',
-    '                              ',
-    '33333333333333333333    33333333333  33333333 33 33 33  ',
-    '222222222                     ',
-    '222222222                     '
-], 
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                                                          ',
+    '                                                   3                                      ',
+    '                                                    3                                     ',
+    '                                                     3                                    ',
+    '                                                      3                                   ',
+    '             L                                         3                                  ',
+    '                                                           3                              ',
+    '                                                                            3             ',
+    '                                                         3    3            32             ',
+    '                                                        3                 322             ',
+    'L       L           L    L                                      3   L    3222             ',
+    '3333333333333333333333333333  33   333    3333     3333            3333332222   33333     ',
+    '222222222                                                                                 ',
+    '222222222                                                                                 '
+  ],
 
 [
     '                              ',
@@ -96,6 +96,10 @@ loadSprite("jump-sprite", "Assets/Mage/mage jump.png",{
 loadSprite("fall-sprite", "Assets/Mage/mage fall.png",{
     sliceX: 2, sliceY: 1,
     anims: {"fall-anim": {from: 0, to: 0, loop:false}}
+})
+loadSprite("hurt-sprite", "Assets/Mage/mage hurt.png",{
+    sliceX: 4, sliceY: 1,
+    anims: {"hurt-anim": {from: 0, to: 3, loop:false,}}
 })
 loadSprite("liz-idle-sprite", "Assets/Enemys/lizard Idle.png", {
     sliceX: 3, sliceY: 1,
@@ -189,6 +193,9 @@ scene("game", ({ levelId } = { levelId: 0}) => {
         scale(backgroundScale),
     ]);
     const level = addLevel(Levels[levelId ?? 0], levelconfig)
+    const tileSize = levelconfig.tileWidth;
+  
+
 
 setGravity(1000)
 // add([
@@ -204,11 +211,14 @@ const player = add([
     body(),
     anchor("center"),
     pos(200, 500),
+    health(3),
     {
         speed: 300,
         previousHeight: null,
         heightDelta: 0,
-        direction: "right"
+        direction: "right",
+        canBeHurt: true,
+        hurtCooldownDuration: 2, // Cooldown duration in seconds
     },
     "player"
 ])
@@ -232,7 +242,6 @@ function spawnBullet(player) {
 function spawnEnemyBullet(enemy) {
     const bulletDirection = enemy.direction === "right" ?  0: 180
     const bulletPosition = vec2(enemy.pos.x, enemy.pos.y + 12); // Set bullet position based on enemy's position
-    console.log("this shoulf")
     add([
         rect(30, 20),
         area(),
@@ -303,6 +312,7 @@ class Lizard {
             anchor("center"),
             pos(x, y),
             health(1),
+            offscreen(),
             {
                 speed: 100,
                 direction: "right", // Start by facing right
@@ -334,6 +344,7 @@ class Mos {
             anchor("center"),
             pos(x, y),
             health(1),
+            offscreen(),
             {
                 speed: 140,
                 direction: "right", 
@@ -384,6 +395,7 @@ class Skull {
             anchor("center"),
             pos(x, y),
             health(1),
+            offscreen(),
             {
                 speed: 100,
                 direction: "left", // Start by facing left
@@ -476,6 +488,16 @@ function onAxeUpdate(axe) {
 }
 
 let axe1 = new Axe(400, 860)
+sevel = Levels[0]
+console.log(sevel)
+for (let y = 0; y < sevel.length; y++) {
+    for (let x = 0; x < sevel[y].length; x++) {
+      if (sevel[y][x] === 'L') {
+        new Lizard(x * tileSize, y * tileSize);
+        console.log("Found an L at" + x)
+      }
+    }
+  }
 
 
 // Dynamic Update, collisions logic
@@ -497,7 +519,7 @@ onUpdate(() => {
     }else {
         camPos(player.pos.x, cameraVerticalOffset)
     }
-    if(player.curAnim() !== 'run-anim' && player.isGrounded()){
+    if(player.curAnim() !== 'run-anim' && player.curAnim() !== 'hurt-anim' && player.isGrounded()){
         player.use(sprite('idle-sprite'))
     }
 
@@ -520,6 +542,9 @@ onUpdate(() => {
     }
     
     Lizard.all.forEach(lizard => {
+        if (lizard.isOffScreen()) {
+            return; // Skip updating offscreen lizard
+        }
         if (lizard.direction === "right") {
             lizard.move(lizard.speed, 0);
             lizard.flipX = false;
@@ -530,9 +555,15 @@ onUpdate(() => {
     });
 
     Mos.all.forEach(mos => {
+        if (mos.isOffScreen()) {
+            return; 
+        }
         onMosUpdate(mos)
     });
     Skull.all.forEach(skull => {
+        if (skull.isOffScreen()) {
+            return; 
+        }
         onUpdateSkull(skull)
     })
     Axe.all.forEach(axe => {
@@ -555,10 +586,10 @@ onCollide("bullet", "enemy", (bullet, enemy) => {
     destroy(bullet)
     enemy.hurt(1)
 })
-onCollide("enemy bullet", "player", (bullet, player) => {
-    destroy(bullet)
-    addKaboom(player.pos)
-})
+// onCollide("enemy bullet", "player", (bullet, player) => {
+//     destroy(bullet)
+//     addKaboom(player.pos)
+// })
 on("death", "enemy", (enemy) => {
     destroy(enemy)
     enemy.markedForDeletion = true
@@ -569,10 +600,4 @@ onKeyPress("n", () => {
     const nextLevelId = 1; // Assuming level 1 is the second level
     loadLevel(nextLevelId);
 });
-
-
 })
-
-go("start");
-
- 
