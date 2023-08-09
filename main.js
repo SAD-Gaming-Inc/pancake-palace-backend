@@ -1,3 +1,5 @@
+
+
 kaboom({
     // width: 1900,
     // height: 900
@@ -227,7 +229,7 @@ setGravity(1000)
 const player = add([
     sprite("idle-sprite"),
     scale(1),
-    area({shape: new Rect(vec2(0),64,32), offset: vec2(0,28)}),
+    area({shape: new Rect(vec2(0),32,32), offset: vec2(-20,28)}),
     body(),
     anchor("center"),
     pos(200, 500),
@@ -539,6 +541,7 @@ onUpdate(() => {
     }
 
     player.previousHeight = player.pos.y
+    player.area.offset = vec2(player.direction === "right" ? -20 : 20, 28);
 
     const cameraLeftBound = 550
     const cameraRightBound = 3000
