@@ -194,10 +194,40 @@ scene("lose", () => {
     ]);
     
     const gameOverText = add([
-      text("You Lose! Space to Retry"),
+      text(`You Lose! Press 'Space' to Retry`),
       color(255, 255, 255),
       anchor("center"),
       pos(width() / 2, height() / 2),
+    ]);
+    
+    onKeyPress("space", () => {
+        go("game")
+    });
+});
+
+scene("win", () => {
+    let winner = add([
+      sprite('pancake-level-background'),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      scale(3),
+      fixed()
+    ]);
+    
+    const winText = add([
+      text(`You Won! Press 'Space' to Play Again`, {
+          transform: (idx, ch) => ({
+            color: rgb(255, 255, 255),
+            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+            scale: wave(1, 1.2, time() * 3 + idx),
+            angle: wave(-24, 9, time() * 3 + idx),
+          }),
+      }),
+    //   color(255, 255, 255),
+      anchor("center"),
+      scale(1.5),
+      pos(width() / 2, height() / 2),
+      area(),
     ]);
     
     onKeyPress("space", () => {
