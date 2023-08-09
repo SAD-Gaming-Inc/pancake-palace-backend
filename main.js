@@ -615,17 +615,18 @@ if (levelId === 1){
       add([
             sprite('pancake'),
             area(),
-            pos(400, 0),
+            scale(2),
+            pos(rand(width()), 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
             "obstacle"
         ]);
 
         // wait a random amount of time to spawn next tree
-        wait(rand(0.5, 1.5), spawnPancake); 
+        // wait(rand(0.5, 1.5), spawnPancake); 
         console.log('should be pancake')
     }
-    spawnPancake();
+    loop(rand(0.5, 2), spawnPancake);
 }
 
 sevel = Levels[levelId]
