@@ -1,5 +1,3 @@
-
-
 kaboom({
     // width: 1900,
     // height: 900
@@ -510,9 +508,9 @@ function onAxeUpdate(axe) {
     })
 }
 
-let axe1 = new Axe(400, 860)
-sevel = Levels[0]
+sevel = Levels[levelId]
 console.log(sevel)
+
 for (let y = 0; y < sevel.length; y++) {
     for (let x = 0; x < sevel[y].length; x++) {
      if (sevel[y][x] === 'L') {
@@ -527,7 +525,7 @@ for (let y = 0; y < sevel.length; y++) {
         console.log("Found an L at" + x)
       }
       if (sevel[y][x] === 'A') {
-        new Axe(x * tileSize, y * tileSize);
+        new Axe(x * tileSize, y * tileSize + 96);
         console.log("Found an A at" + x)
       }
     }
@@ -633,6 +631,7 @@ on("death", "enemy", (enemy) => {
 onKeyPress("n", () => {
     const nextLevelId = 1; // Assuming level 1 is the second level
     loadLevel(nextLevelId);
+    levelId = 1
 });
 
 player.on("death", () => {
