@@ -28,25 +28,24 @@ loadSpriteAtlas("tileset.jpg", {
     'deep-block': {x:66, y: 66, width: 64, height: 64},
 })
 
-const Levels =  [ [
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                   3                                      ',
-    '                                                    3                                     ',
-    '                                                     3                                    ',
-    '                                                      3                                   ',
-    '                                                       3      S             L             ',
-    '                                                           3                3             ',
-    '                                     M                    3                32             ',
-    '                                                         3   3            322             ',
-    '                                                        3                3222             ',
-    '        L     L      L                                         3     A  32222            ',
-    '3333333333333333333333333333  33   333    3333     3333          333333322222  3333       ',
-    '222222222                                         M                                       ',
-    '222222222                                                                                 '
-  ],
+const Levels = [  [   '                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                       M                      S             L                                           ',
+'                                 M                         3                3                                           ',
+'                 L                   M                    3                32                                           ',
+'           3333333                                       3   3            322            M                              ',
+'                                                        3                3222         M                                 ',
+'        L     L      L                                         3     A  32222      A    A   L                           ',
+'333333333333333333333333  33B 33 B 333    3333     3333          333333322222  3333333333333333                         ',
+'222222222                                                                                                               ',
+'222222222                                                                                                               '
+],
 
 [
     '                              ',
@@ -369,7 +368,10 @@ function spawnBullet(player) {
     ]);
 }
 function spawnEnemyBullet(enemy) {
-    const bulletDirection = enemy.direction === "right" ?  0: 180
+    let bulletDirection = enemy.direction === "right" ?  0: 180
+    if(enemy.pot){
+        bulletDirection = 90
+    }
     const bulletPosition = vec2(enemy.pos.x, enemy.pos.y + 12); // Set bullet position based on enemy's position
     add([
         rect(30, 20),
@@ -515,7 +517,7 @@ function onMosUpdate(mos){
 
 class Skull {
     static all =[];
-    constructor(x, y){
+    constructor(x, y, pot=0, bulldelay=0){
         Skull.all.push(add([
             sprite("skull-idle-sprite"), 
             scale(1),
@@ -524,13 +526,15 @@ class Skull {
             anchor("center"),
             pos(x, y),
             health(1),
+            rotate(0),
             offscreen(),
             {
                 speed: 100,
                 direction: "left", // Start by facing left
                 shootInterval: 2,
-                shootTimer: 0,
-                markedForDeletion: false
+                shootTimer: 0 - bulldelay,
+                markedForDeletion: false,
+                pot: pot
             },
             "enemy",
             "skull",
@@ -540,15 +544,23 @@ class Skull {
     }
 
     idle() {
-        // Change the lizard's animation to walk-anim
-        Skull.all[Skull.all.length - 1].use(sprite("skull-idle-sprite"));
-        Skull.all[Skull.all.length - 1].play("skull-idle-anim");
-        Skull.all[Skull.all.length - 1].flipX = true
+        const currentSkull = Skull.all[Skull.all.length - 1]; // Get the current Skull instance
+
+        // Change the lizard's animation to idle sprite
+        currentSkull.use(sprite("skull-idle-sprite"));
+        currentSkull.play("skull-idle-anim");
+        currentSkull.flipX = true;
+    
+        // Check if pot is 1, and rotate the Skull accordingly
+        if (currentSkull.pot === 1) {
+            currentSkull.angle = 270; // Rotate the Skull 90 degrees
+        } 
     }
 }
 function onUpdateSkull(skull){
         // Update the shoot timer for the Skull
         skull.shootTimer += dt();
+        // let direction = skull.pot ===
 
         // Check if the Skull can shoot based on the shoot interval
         if (skull.shootTimer >= skull.shootInterval) {
@@ -557,7 +569,10 @@ function onUpdateSkull(skull){
         }
 }
 
-// let skull1 = new Skull(600,800)
+
+
+let skull1 = new Skull(400,800, 1)
+let skull2 = new Skull(500,800, 1, 0.5)
 
 // class Axe {
 //     static all =[];
