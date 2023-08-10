@@ -700,7 +700,7 @@ class Portal {
     }
 }
 
-let portal1 = new Portal(0,896)
+// let portal1 = new Portal(0,896)
 
 if (levelId === 1){
     function spawnPancake(){
