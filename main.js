@@ -699,7 +699,7 @@ if (levelId === 1){
     function spawnPancake(){
       add([
             sprite('pancake'),
-            area(),
+            area({shape: new Rect(vec2(0), 22, 22), offset: vec2(4, 4)}),
             scale(2),
             pos(rand(700, 1200), 0),
             // anchor("center"),
@@ -718,6 +718,11 @@ if (levelId === 1){
   }
     timedPancakeLevel();
     loop(rand(0.5, 2), spawnPancake);
+    loop(rand(0.5, 2), spawnPancake);
+    loop(rand(0.5, 2), spawnPancake);
+
+
+  
 }
 
 sevel = Levels[levelId]
