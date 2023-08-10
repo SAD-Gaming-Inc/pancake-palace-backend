@@ -13,7 +13,7 @@ const FALL_DEATH = 1800
 loadSprite("full-castle-background", "Assets/Background.png")
 loadSprite("pancake-level-background", "Assets/pancake level background.png")
 
-
+ //ok
 
 add([
     sprite('full-castle-background'),
