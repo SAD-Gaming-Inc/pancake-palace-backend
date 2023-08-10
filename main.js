@@ -28,24 +28,25 @@ loadSpriteAtlas("tileset.jpg", {
     'deep-block': {x:66, y: 66, width: 64, height: 64},
 })
 
-const Levels = [  [   '                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                                                                                                        ',
-'                                       M                      S             L                                           ',
-'                                 M                         3                3                                           ',
-'                 L                   M                    3                32                                           ',
-'           3333333                                       3   3            322            M                              ',
-'                                                        3                3222         M                                 ',
-'        L     L      L                                         3     A  32222      A    A   L                           ',
-'333333333333333333333333  33B 33 B 333    3333     3333          333333322222  3333333333333333                         ',
-'222222222                                                                                                               ',
-'222222222                                                                                                               '
-],
+const Levels = [  [
+    '                                                                                                                                    M                 ',
+    '                                                                                                                                                      ',
+    '                                                                                                 X Z X                           A                    ',
+    '                                                                                                                                 3                    ',
+    '                                                                                                                                   B                  ',
+    '                                                                                                                      M             M                ',
+    '                                                                                                                   A           3      3333            ',
+    '                                                                                                     3             3  M          A                    ',
+    '                                       M                      S             L                                                  M 3                    ',
+    '                                 BM                        3                3                      3             3     3                              ',
+    '                 L                   M                    3                32                                           3      3                      ',
+    '           3333333                                       3   3            322            M              333        3     3                            ',
+    '                             B                          3                3222         M          3         3              3333                        ',
+    '              L      L                                         3     A  32222      A    A   L               333333                                    ',
+    '333333333333333333333333  33  33 B 333    3333     3333          333333322222  3333333333333333                                                       ',
+    '222222222                                                                                                                                             ',
+    '222222222                                                                                                                                             '
+  ],
 
 [
     '                              ',
@@ -137,6 +138,11 @@ loadSprite("blade-spin-sprite", "Assets/Enemys/blade trap.png", {
     sliceX: 3, sliceY: 1,
     anims : {"blade-spin-anim": {from: 0, to: 2, loop:true}}
 })
+loadSprite("portal-spin-sprite", "portal.png", {
+    sliceX: 4, sliceY: 1,
+    anims : {"portal-spin-anim": {from: 0, to: 3, loop:true}}
+})
+
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
 loadSprite("pancake", 'Assets/Enemys/pancake.png')
 
@@ -571,8 +577,6 @@ function onUpdateSkull(skull){
 
 
 
-let skull1 = new Skull(400,800, 1)
-let skull2 = new Skull(500,800, 1, 0.5)
 
 // class Axe {
 //     static all =[];
@@ -602,7 +606,7 @@ let skull2 = new Skull(500,800, 1, 0.5)
 // }
 class Axe {
     static all = [];
-    constructor(x, y) {
+    constructor(x, y, rotoffset=0) {
         Axe.all.push(add([
             sprite("axe-trap"),
             scale(3),
@@ -612,7 +616,7 @@ class Axe {
             pos(x, y),
             health(1),
             {
-                angle: 0,
+                angle: 0 + rotoffset,
                 speed: 100,
                 markedForDeletion: false,
             },
@@ -695,6 +699,7 @@ if (levelId === 1){
 
 sevel = Levels[levelId]
 console.log(sevel)
+let axeOffset = false
 
 for (let y = 0; y < sevel.length; y++) {
     for (let x = 0; x < sevel[y].length; x++) {
@@ -707,16 +712,21 @@ for (let y = 0; y < sevel.length; y++) {
         new Skull(x * tileSize, y * tileSize);
       }
       if (sevel[y][x] === 'A') {
-        new Axe(x * tileSize, y * tileSize + 96);
+        let rotoffset = 0
+        if(axeOffset){
+            rotoffset+= 90
+        }
+        new Axe(x * tileSize + 25, y * tileSize + 96, rotoffset);
+        axeOffset = !axeOffset
       }
       if (sevel[y][x] === 'B') {
         new Blade(x * tileSize, y * tileSize + 96);
       }
       if (sevel[y][x] === 'X') {
-        new Skull(x * tileSize, y * tileSize + 96, 1);
+        new Skull(x * tileSize + 10, y * tileSize + 96, 1);
       }
       if (sevel[y][x] === 'Z') {
-        new Skull(x * tileSize, y * tileSize + 96, 1, 0.80);
+        new Skull(x * tileSize + 10, y * tileSize + 96, 1, 0.80);
       }
     }
   }
