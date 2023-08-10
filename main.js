@@ -12,8 +12,8 @@ const FALL_DEATH = 1800
 
 loadSprite("full-castle-background", "Assets/Background.png")
 loadSprite("pancake-level-background", "Assets/pancake level background.png")
-
-
+loadFont("titlePageFont", "font/HaloDomasRegular-9Y2Zj.ttf")
+loadFont("GameOverFont", "font/Handjet-Regular.ttf")
 
 add([
     sprite('full-castle-background'),
@@ -156,7 +156,8 @@ scene("start", () => {
     ]);
 
     const startGame = add([
-        text("Press Enter to Continue", {
+        text("Press Enter to Continue",{
+            font: "GameOverFont",
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
             pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
@@ -172,6 +173,7 @@ scene("start", () => {
     
     const titleText = add([
         text("Pancake Palace", {
+            font: "titlePageFont",
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
             pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
@@ -197,6 +199,7 @@ scene("controls", () => {
     ])
     const spacebar = add([
         text("Press Spacebar shoot",{
+            font: "GameOverFont",
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
             pos: vec2(0, wave(-1, 1, time() * 4 + idx * 0.2)),
@@ -211,6 +214,7 @@ scene("controls", () => {
       ]);
       const arrowKeys = add([
         text("Press Left and Right arrow keys to walk",{
+            font: "GameOverFont",
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
             pos: vec2(0, wave(-1, 1, time() * 4 + idx * 0.2)),
@@ -226,6 +230,7 @@ scene("controls", () => {
     
       const upArrowKey = add([
         text("Press Up arrow to jump",{
+            font: "GameOverFont",
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
             pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
@@ -241,11 +246,13 @@ scene("controls", () => {
     
       const begin = add([
         text("Press Enter to Play!",{
-          transform: (idx, ch) => ({
-            color: rgb(255, 255, 255),
-            pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
-            scale: wave(1, 1.2, time() * 3 + idx),
-            angle: wave(-24, 9, time() * 3 + idx),
+        font: "GameOverFont",
+            transform: (idx, ch) => ({
+                color: rgb(255, 255, 255),
+                pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
+                scale: wave(1, 1.2, time() * 3 + idx),
+               
+                angle: wave(-24, 9, time() * 3 + idx),
           }),
         }),
         pos(width() / 2, height() / 1.2),
@@ -258,7 +265,7 @@ scene("controls", () => {
     })
   })
 
-scene("lose", () => {
+  scene("lose", () => {
     let loser = add([
       sprite('full-castle-background'),
       pos(width() / 2, height() / 2),
@@ -268,7 +275,9 @@ scene("lose", () => {
     ]);
     
     const gameOverText = add([
-      text(`You Lose! Press 'Space' to Retry`),
+      text(`Game Over! Press 'Space' to Retry`),{
+      font: "GameOverFont",
+      },
       color(255, 255, 255),
       anchor("center"),
       pos(width() / 2, height() / 2),
@@ -289,7 +298,8 @@ scene("win", () => {
     ]);
     
     const winText = add([
-      text(`You Won! Press 'Space' to Play Again`, {
+      text(`You Won! Press 'Space' to Play Again`,{
+        font: "GameOverFont",
           transform: (idx, ch) => ({
             color: rgb(255, 255, 255),
             pos: vec2(0, wave(-4, 4, time() * 4 + idx * 0.5)),
@@ -724,7 +734,28 @@ if (levelId === 1){
     loop(rand(0.5, 2), spawnPancake);
 
 
-    
+    scene("lose", () => {
+        let loser = add([
+          sprite('pancake-level-background'),
+          pos(width() / 2, height() / 2),
+          anchor("center"),
+          scale(3),
+          fixed()
+        ]);
+        
+        const gameOverText = add([
+          text(`You Lose! Press 'Space' to Retry`),{
+            font: "GameOverFont",
+            },
+          color(255, 255, 255),
+          anchor("center"),
+          pos(width() / 2, height() / 2),
+        ]);
+        
+        onKeyPress("space", () => {
+            go("game")
+        });
+    });
 
 
   
