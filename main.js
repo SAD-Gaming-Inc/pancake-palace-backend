@@ -58,7 +58,7 @@ const Levels = [  [
     '                    ',
     '         0          0',
     '         0          0',
-    '00000000000000000000'
+    '000000000000000000000'
 ], 
 ]
 
@@ -677,7 +677,7 @@ if (levelId === 1){
             sprite('pancake'),
             area(),
             scale(2),
-            pos(rand(700), 0),
+            pos(rand(700, 1200), 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
             "obstacle"
@@ -685,7 +685,6 @@ if (levelId === 1){
 
         // wait a random amount of time to spawn next tree
         // wait(rand(0.5, 1.5), spawnPancake); 
-        console.log('should be pancake')
     }
 
   function timedPancakeLevel(){
