@@ -1,3 +1,6 @@
+
+
+
 kaboom({
     // width: 1900,
     // height: 900
@@ -25,25 +28,24 @@ loadSpriteAtlas("tileset.jpg", {
     'deep-block': {x:66, y: 66, width: 64, height: 64},
 })
 
-const Levels =  [ [
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                                                          ',
-    '                                                   3                                      ',
-    '                                                    3                                     ',
-    '                                                     3                                    ',
-    '                                                      3                                   ',
-    '                                                       3      S             L             ',
-    '                                                           3                3             ',
-    '                                     M                    3                32             ',
-    '                                                         3   3            322             ',
-    '                                                        3                3222             ',
-    '        L     L      L                                         3     A  32222            ',
-    '3333333333333333333333333333  33   333    3333     3333          333333322222  3333       ',
-    '222222222                                         M                                       ',
-    '222222222                                                                                 '
-  ],
+const Levels = [  [   '                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                                                                                                        ',
+'                                       M                      S             L                                           ',
+'                                 M                         3                3                                           ',
+'                 L                   M                    3                32                                           ',
+'           3333333                                       3   3            322            M                              ',
+'                                                        3                3222         M                                 ',
+'        L     L      L                                         3     A  32222      A    A   L                           ',
+'333333333333333333333333  33B 33 B 333    3333     3333          333333322222  3333333333333333                         ',
+'222222222                                                                                                               ',
+'222222222                                                                                                               '
+],
 
 [
     '                              ',
@@ -131,8 +133,13 @@ loadSprite("mos-death-sprite", "Assets/Enemys/mos death.png", {
     sliceX: 4, sliceY: 1,
     anims : {"mos-death-anim": {from: 0, to: 3, loop:true}}
 })
+loadSprite("blade-spin-sprite", "Assets/Enemys/blade trap.png", {
+    sliceX: 3, sliceY: 1,
+    anims : {"blade-spin-anim": {from: 0, to: 2, loop:true}}
+})
 loadSprite("axe-trap", "Assets/Enemys/Axe_Trap.png")
 loadSprite("pancake", 'Assets/Enemys/pancake.png')
+
 function loadLevel(levelId) {
     go("game", { levelId });
 }
@@ -327,7 +334,7 @@ setGravity(1000)
 const player = add([
     sprite("idle-sprite"),
     scale(1),
-    area({shape: new Rect(vec2(0),64,32), offset: vec2(0,28)}),
+    area({shape: new Rect(vec2(0),32,32), offset: vec2(-20,28)}),
     body(),
     anchor("center"),
     pos(200, 500),
@@ -361,7 +368,10 @@ function spawnBullet(player) {
     ]);
 }
 function spawnEnemyBullet(enemy) {
-    const bulletDirection = enemy.direction === "right" ?  0: 180
+    let bulletDirection = enemy.direction === "right" ?  0: 180
+    if(enemy.pot){
+        bulletDirection = 90
+    }
     const bulletPosition = vec2(enemy.pos.x, enemy.pos.y + 12); // Set bullet position based on enemy's position
     add([
         rect(30, 20),
@@ -436,7 +446,7 @@ class Lizard {
             offscreen(),
             {
                 speed: 100,
-                direction: "right", // Start by facing right
+                direction: "left", // Start by facing left
                 markedForDeletion: false
             },
             "enemy"
@@ -507,7 +517,7 @@ function onMosUpdate(mos){
 
 class Skull {
     static all =[];
-    constructor(x, y){
+    constructor(x, y, pot=0, bulldelay=0){
         Skull.all.push(add([
             sprite("skull-idle-sprite"), 
             scale(1),
@@ -516,13 +526,15 @@ class Skull {
             anchor("center"),
             pos(x, y),
             health(1),
+            rotate(0),
             offscreen(),
             {
                 speed: 100,
                 direction: "left", // Start by facing left
                 shootInterval: 2,
-                shootTimer: 0,
-                markedForDeletion: false
+                shootTimer: 0 - bulldelay,
+                markedForDeletion: false,
+                pot: pot
             },
             "enemy",
             "skull",
@@ -532,15 +544,23 @@ class Skull {
     }
 
     idle() {
-        // Change the lizard's animation to walk-anim
-        Skull.all[Skull.all.length - 1].use(sprite("skull-idle-sprite"));
-        Skull.all[Skull.all.length - 1].play("skull-idle-anim");
-        Skull.all[Skull.all.length - 1].flipX = true
+        const currentSkull = Skull.all[Skull.all.length - 1]; // Get the current Skull instance
+
+        // Change the lizard's animation to idle sprite
+        currentSkull.use(sprite("skull-idle-sprite"));
+        currentSkull.play("skull-idle-anim");
+        currentSkull.flipX = true;
+    
+        // Check if pot is 1, and rotate the Skull accordingly
+        if (currentSkull.pot === 1) {
+            currentSkull.angle = 270; // Rotate the Skull 90 degrees
+        } 
     }
 }
 function onUpdateSkull(skull){
         // Update the shoot timer for the Skull
         skull.shootTimer += dt();
+        // let direction = skull.pot ===
 
         // Check if the Skull can shoot based on the shoot interval
         if (skull.shootTimer >= skull.shootInterval) {
@@ -549,7 +569,10 @@ function onUpdateSkull(skull){
         }
 }
 
-// let skull1 = new Skull(600,800)
+
+
+let skull1 = new Skull(400,800, 1)
+let skull2 = new Skull(500,800, 1, 0.5)
 
 // class Axe {
 //     static all =[];
@@ -602,11 +625,54 @@ class Axe {
 
 function onAxeUpdate(axe) {
     // Update the axe's angle
-    axe.angle += dt() * 50; // You can adjust the rotation speed as needed
+    axe.angle += dt() * 80; 
     axe.use(sprite("axe-trap"), {
         rotation: axe.angle,
     })
 }
+class Blade {
+    static all =[];
+    constructor(x, y){
+        Blade.all.push(add([
+            sprite("blade-spin-sprite"), 
+            scale(1),
+            area({shape: new Rect(vec2(0), 64, 32), offset: vec2(0, 0)}),
+            anchor("center"),
+            pos(x, y),
+            health(1),
+            offscreen(),
+            {
+                speed: 3,
+                direction: "left", // Start by facing left
+                ybottom: y + 200,
+                ytop: y - 200,
+                goingUp: true
+            },
+            "obstacle"
+        ]));
+
+        this.spin();
+    }
+
+    spin() {
+        Blade.all[Blade.all.length - 1].use(sprite("blade-spin-sprite"));
+        Blade.all[Blade.all.length - 1].play("blade-spin-anim");
+    }
+}
+
+function onBladeUpdate(blade) {
+    if(blade.goingUp){
+        if(blade.pos.y < blade.ytop){
+            blade.goingUp = false
+        }else {blade.pos.y-= blade.speed}
+    }else {
+        if(blade.pos.y > blade.ybottom){
+            blade.goingUp = true
+        }else {blade.pos.y+= blade.speed}
+    }
+}
+
+// let blade1 = new Blade(400, 800)
 
 if (levelId === 1){
     function spawnPancake(){
@@ -617,12 +683,20 @@ if (levelId === 1){
             pos(rand(width()), 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
+            "obstacle"
         ]);
 
         // wait a random amount of time to spawn next tree
         // wait(rand(0.5, 1.5), spawnPancake); 
         console.log('should be pancake')
     }
+
+  function timedPancakeLevel(){
+        wait(30, () => {
+            go("win")
+        })   
+  }
+    timedPancakeLevel();
     loop(rand(0.5, 2), spawnPancake);
 }
 
@@ -633,18 +707,23 @@ for (let y = 0; y < sevel.length; y++) {
     for (let x = 0; x < sevel[y].length; x++) {
      if (sevel[y][x] === 'L') {
         new Lizard(x * tileSize, y * tileSize);
-        console.log("Found an L at" + x)
       }else if (sevel[y][x] === 'M') {
         new Mos(x * tileSize, y * tileSize);
-        console.log("Found an M at" + x)
       }
       if (sevel[y][x] === 'S') {
         new Skull(x * tileSize, y * tileSize);
-        console.log("Found an L at" + x)
       }
       if (sevel[y][x] === 'A') {
         new Axe(x * tileSize, y * tileSize + 96);
-        console.log("Found an A at" + x)
+      }
+      if (sevel[y][x] === 'B') {
+        new Blade(x * tileSize, y * tileSize + 96);
+      }
+      if (sevel[y][x] === 'X') {
+        new Skull(x * tileSize, y * tileSize + 96, 1);
+      }
+      if (sevel[y][x] === 'Z') {
+        new Skull(x * tileSize, y * tileSize + 96, 1, 0.80);
       }
     }
   }
@@ -657,6 +736,7 @@ onUpdate(() => {
     }
 
     player.previousHeight = player.pos.y
+    player.area.offset = vec2(player.direction === "right" ? -20 : 20, 28);
 
     const cameraLeftBound = 550
     const cameraRightBound = 3000
@@ -711,14 +791,17 @@ onUpdate(() => {
         onMosUpdate(mos)
     });
     Skull.all.forEach(skull => {
-        if (skull.isOffScreen()) {
-            return; 
-        }
+        // if (skull.isOffScreen()) {
+        //     return; 
+        // }
         onUpdateSkull(skull)
     })
     Axe.all.forEach(axe => {
         onAxeUpdate(axe);
     });
+    Blade.all.forEach(blade => {
+        onBladeUpdate(blade)
+    })
 
     //filter Dead Enemies
     Lizard.all = Lizard.all.filter((liz) => !liz.markedForDeletion)
@@ -762,6 +845,27 @@ onCollide("enemy bullet", "player", (bullet, player) => {
     player.trigger("hurt"); // Trigger player hurt event
 });
 onCollide("enemy", "player", (enemy, player) => {
+    if (player.canBeHurt) {
+        player.canBeHurt = false;
+        player.use(sprite("hurt-sprite"));
+        player.play("hurt-anim", {
+            loop: false,
+            onComplete: () => {
+                player.isHurt = false; // Reset the hurt animation flag
+                player.use(sprite("idle-sprite")); // Return to idle animation after hurt
+            },
+        });
+        wait(player.hurtCooldownDuration, () => {
+            player.canBeHurt = true; // Reset the canBeHurt property after cooldown
+        });
+        player.health--; // Deduct health when hurt
+        console.log(player.health)
+        if(player.health <= 0){
+            player.trigger("death")
+        }
+    }
+});
+onCollide("obstacle", "player", (obstacle, player) => {
     if (player.canBeHurt) {
         player.canBeHurt = false;
         player.use(sprite("hurt-sprite"));
