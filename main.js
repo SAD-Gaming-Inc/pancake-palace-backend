@@ -701,7 +701,7 @@ if (levelId === 1){
             sprite('pancake'),
             area({shape: new Rect(vec2(0), 22, 22), offset: vec2(4, 4)}),
             scale(2),
-            pos(rand(700, 1200), 0),
+            pos(rand(640, 1200), 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
             "obstacle"
@@ -720,10 +720,16 @@ if (levelId === 1){
     loop(rand(0.5, 2), spawnPancake);
     loop(rand(0.5, 2), spawnPancake);
     loop(rand(0.5, 2), spawnPancake);
+    loop(rand(0.5, 2), spawnPancake);
+    loop(rand(0.5, 2), spawnPancake);
+
+
+    
 
 
   
 }
+
 
 sevel = Levels[levelId]
 console.log(sevel)
