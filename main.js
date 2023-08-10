@@ -28,20 +28,20 @@ loadSpriteAtlas("tileset.jpg", {
     'deep-block': {x:66, y: 66, width: 64, height: 64},
 })
 
-const Levels = [  [
+const Levels = [ [
     '                                                                                                                                    M                 ',
     '                                                                                                                                                      ',
     '                                                                                                 X Z X                           A                    ',
     '                                                                                                                                 3                    ',
     '                                                                                                                                   B                  ',
-    '                                                                                                                      M             M                ',
+    '                                                                                                                      M             M  O              ',
     '                                                                                                                   A           3      3333            ',
     '                                                                                                     3             3  M          A                    ',
     '                                       M                      S             L                                                  M 3                    ',
     '                                 BM                        3                3                      3             3     3                              ',
     '                 L                   M                    3                32                                           3      3                      ',
     '           3333333                                       3   3            322            M              333        3     3                            ',
-    '                             B                          3                3222         M          3         3              3333                        ',
+    'O                            B                          3                3222         M          3         3              3333                        ',
     '              L      L                                         3     A  32222      A    A   L               333333                                    ',
     '333333333333333333333333  33  33 B 333    3333     3333          333333322222  3333333333333333                                                       ',
     '222222222                                                                                                                                             ',
@@ -668,8 +668,32 @@ function onBladeUpdate(blade) {
         }else {blade.pos.y+= blade.speed}
     }
 }
+class Portal {
+    static all =[];
+    constructor(x, y){
+        Portal.all.push(add(
+            [
+                sprite("portal-spin-sprite"),
+                area(),
+                anchor("bot"),
+                pos(x, y),
+                scale(1),
+                "portal",
+            ]
+        ));
 
-// let blade1 = new Blade(400, 800)
+        this.spin();
+
+    }
+
+    spin() {
+        Portal.all[Portal.all.length - 1].use(sprite("portal-spin-sprite"));
+        Portal.all[Portal.all.length - 1].play("portal-spin-anim");
+        Portal.all[Portal.all.length - 1].pos.y
+    }
+}
+
+let portal1 = new Portal(0,896)
 
 if (levelId === 1){
     function spawnPancake(){
@@ -726,6 +750,9 @@ for (let y = 0; y < sevel.length; y++) {
       }
       if (sevel[y][x] === 'Z') {
         new Skull(x * tileSize + 10, y * tileSize + 96, 1, 0.80);
+      }
+      if (sevel[y][x] === 'O') {
+        new Portal(x * tileSize  , y * tileSize ,);
       }
     }
   }
@@ -868,6 +895,13 @@ onCollide("enemy", "player", (enemy, player) => {
         }
     }
 });
+onCollide("portal", "player", () => {
+    const nextLevelId = 1; 
+    loadLevel(nextLevelId);
+    levelId = 1
+
+  
+})
 onCollide("obstacle", "player", (obstacle, player) => {
     if (player.canBeHurt) {
         player.canBeHurt = false;
@@ -889,6 +923,7 @@ onCollide("obstacle", "player", (obstacle, player) => {
         }
     }
 });
+
   
 })
 
