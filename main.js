@@ -258,7 +258,7 @@ scene("controls", () => {
     })
   })
 
-scene("lose", () => {
+  scene("lose", () => {
     let loser = add([
       sprite('full-castle-background'),
       pos(width() / 2, height() / 2),
@@ -694,6 +694,26 @@ class Portal {
 }
 
 // let portal1 = new Portal(0,896)
+scene("lose", () => {
+    let loser = add([
+      sprite('pancake-level-background'),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      scale(3),
+      fixed()
+    ]);
+    
+    const gameOverText = add([
+      text(`You Lose! Press 'Space' to Retry`),
+      color(255, 255, 255),
+      anchor("center"),
+      pos(width() / 2, height() / 2),
+    ]);
+    
+    onKeyPress("space", () => {
+        go("game")
+    });
+});
 
 if (levelId === 1){
     function spawnPancake(){
