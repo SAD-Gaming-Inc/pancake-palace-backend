@@ -49,23 +49,16 @@ const Levels = [  [
   ],
 
 [
-    '                              ',
-    '                             ',
-    '                              ',
-    '                            ',
-    '                             ',
-    '                              ',
-    '                              ',
-    '       0                      ',
-    '       0                      ',
-    '       0                      ',
-    '                              ',
-    '                              ',
-    '       0                       ',
-    '       0                       ',
-    '0000000000000000000000000000000  ',
-    '000000                   ',
-    '222222222                     '
+    '                    ',
+    '                    ',
+    '                    ',
+    '                    ',
+    '                    ',
+    '                    ',
+    '                    ',
+    '         0          0',
+    '         0          0',
+    '00000000000000000000'
 ], 
 ]
 
@@ -329,7 +322,7 @@ scene("game", ({ levelId } = { levelId: 0}) => {
     const tileSize = levelconfig.tileWidth;
   
 
-
+const startOffset = levelId === 1 ? 500 : 0;
 setGravity(1000)
 // add([
 //     sprite('full-castle-background'),
@@ -343,7 +336,7 @@ const player = add([
     area({shape: new Rect(vec2(0),32,32), offset: vec2(-20,28)}),
     body(),
     anchor("center"),
-    pos(200, 500),
+    pos(200 + startOffset, 500),
     health(3),
     {
         speed: 300,
@@ -684,7 +677,7 @@ if (levelId === 1){
             sprite('pancake'),
             area(),
             scale(2),
-            pos(rand(width()), 0),
+            pos(rand(700), 0),
             // anchor("center"),
             move(DOWN, BULLET_SPEED),
             "obstacle"
@@ -751,13 +744,14 @@ onUpdate(() => {
     const cameraLeftBound = 550
     const cameraRightBound = 3000
     const cameraVerticalOffset = player.pos.y - 100
-
+    if(levelId === 0){
     if(cameraLeftBound > player.pos.x){
         camPos(cameraLeftBound, cameraVerticalOffset)
     }else if (cameraRightBound > player){
         camPos(cameraRightBound, cameraVerticalOffset)
     }else {
         camPos(player.pos.x, cameraVerticalOffset)
+    }
     }
     if(player.curAnim() !== 'run-anim' && player.curAnim() !== 'hurt-anim' && player.isGrounded()){
         player.use(sprite('idle-sprite'))
